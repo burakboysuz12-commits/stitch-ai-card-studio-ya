@@ -3479,16 +3479,28 @@ class LocalAIAssistantModule(BaseModuleView):
         return True
 
     @classmethod
-    def _filter_evren_chat_models(cls, data_list: list) -> list:
+    def _filter_evren_chat_models(cls, data_list: list, base_url: str = "") -> list:
         chat_ids = []
         seen = set()
+        is_gemini = "generativelanguage.googleapis.com" in (base_url or "").lower()
         for item in data_list or []:
             if not isinstance(item, dict):
                 continue
             mid = (item.get("id") or "").strip()
-            if mid and mid not in seen and cls._is_evren_chat_model(mid, item):
+            if not mid:
+                continue
+            if is_gemini:
+                if "gemini" in mid.lower() and mid not in seen:
+                    seen.add(mid)
+                    chat_ids.append(mid)
+            elif mid not in seen and cls._is_evren_chat_model(mid, item):
                 seen.add(mid)
                 chat_ids.append(mid)
+        if is_gemini:
+            pref_order = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"]
+            sorted_models = [m for m in pref_order if m in seen]
+            sorted_models += [m for m in chat_ids if m not in sorted_models]
+            return sorted_models or ["gemini-2.5-flash", "gemini-1.5-flash"]
         preferred = [m for m in cls.EVREN_DEFAULT_MODELS if m in seen and m != "auto"]
         others = [m for m in chat_ids if m not in preferred and m != "auto"]
         ordered = preferred + others
@@ -3504,7 +3516,9 @@ class LocalAIAssistantModule(BaseModuleView):
         if saved_url:
             self.evren_base_url = saved_url.rstrip("/")
         saved_evren_model = self._get_setting("evren_model", "").strip()
-        if "ssyz.org.tr" not in self.evren_base_url:
+        if "generativelanguage.googleapis.com" in self.evren_base_url.lower():
+            self.evren_model = saved_evren_model if (saved_evren_model and "gemini" in saved_evren_model) else "gemini-2.5-flash"
+        elif "ssyz.org.tr" not in self.evren_base_url:
             self.evren_model = saved_evren_model or "my-custom-ai"
         elif saved_evren_model and saved_evren_model not in ("auto", "deepseek-v4-flash") and self._is_evren_chat_model(saved_evren_model):
             self.evren_model = saved_evren_model
@@ -3638,11 +3652,15 @@ class LocalAIAssistantModule(BaseModuleView):
         initial_model = (
             self.evren_model if self.active_provider == self.PROVIDER_EVREN else self.ollama_model
         )
-        initial_models = (
-            (["qwen2.5-coder-32b-pro", "my-custom-ai"] if "ssyz.org.tr" not in self.evren_base_url else self.EVREN_DEFAULT_MODELS)
-            if self.active_provider == self.PROVIDER_EVREN
-            else ["qwen2.5:7b", "llama3.2"]
-        )
+        if self.active_provider == self.PROVIDER_EVREN:
+            if "generativelanguage.googleapis.com" in self.evren_base_url.lower():
+                initial_models = ["gemini-2.5-flash", "gemini-1.5-flash", "gemini-1.5-pro"]
+            elif "ssyz.org.tr" not in self.evren_base_url:
+                initial_models = ["qwen2.5-coder-32b-pro", "my-custom-ai"]
+            else:
+                initial_models = self.EVREN_DEFAULT_MODELS
+        else:
+            initial_models = ["qwen2.5:7b", "llama3.2"]
         self.model_var = tk.StringVar(value=initial_model)
         self.model_combo = ttk.Combobox(
             header_bar,
@@ -4265,12 +4283,12 @@ class LocalAIAssistantModule(BaseModuleView):
     def _check_evren_status_async(self):
         if not self.evren_api_key:
             self.ollama_badge.config(
-                text="● EVREN API Anahtarı Girilmedi (🔑 EVREN Ayarları)",
+                text="● AI API Anahtarı Girilmedi (⚙ Sunucu)",
                 fg=THEME["warning"]
             )
             return
 
-        self.ollama_badge.config(text="● EVREN AI Kontrol Ediliyor...", fg=THEME["warning"])
+        self.ollama_badge.config(text="● AI Sunucusu Kontrol Ediliyor...", fg=THEME["warning"])
 
         def _worker():
             try:
@@ -4281,7 +4299,7 @@ class LocalAIAssistantModule(BaseModuleView):
                 )
                 if r.status_code == 200:
                     payload = r.json()
-                    models = self._filter_evren_chat_models(payload.get("data", []))
+                    models = self._filter_evren_chat_models(payload.get("data", []), base_url=self.evren_base_url)
                     terms_ok = True
                     try:
                         tr = requests.get(
@@ -4304,12 +4322,14 @@ class LocalAIAssistantModule(BaseModuleView):
                                 self.evren_model = models[0]
                                 self._set_setting("evren_model", models[0])
                         if terms_ok:
+                            is_gemini = "generativelanguage.googleapis.com" in self.evren_base_url.lower()
                             is_custom = "ssyz.org.tr" not in self.evren_base_url
-                            badge_lbl = (
-                                f"● 🚀 Kendi Kaggle AI Aktif ({self.model_var.get()})"
-                                if is_custom
-                                else f"● EVREN AI Aktif ({self.model_var.get()})"
-                            )
+                            if is_gemini:
+                                badge_lbl = f"● ✨ Google Gemini Aktif ({self.model_var.get()})"
+                            elif is_custom:
+                                badge_lbl = f"● 🚀 Kendi Kaggle AI Aktif ({self.model_var.get()})"
+                            else:
+                                badge_lbl = f"● EVREN AI Aktif ({self.model_var.get()})"
                             self.ollama_badge.config(
                                 text=badge_lbl,
                                 fg=THEME["success"]
@@ -4330,12 +4350,12 @@ class LocalAIAssistantModule(BaseModuleView):
                 except Exception:
                     pass
                 self.after(0, lambda m=err_msg: self.ollama_badge.config(
-                    text=f"● EVREN Bağlantı Hatası ({m[:35]})",
+                    text=f"● AI Bağlantı Hatası ({m[:35]})",
                     fg="#ef4444"
                 ))
             except Exception:
                 self.after(0, lambda: self.ollama_badge.config(
-                    text="● EVREN API Erişilemedi",
+                    text="● AI Sunucusuna Erişilemedi (⚙ Sunucu)",
                     fg="#ef4444"
                 ))
 
@@ -4611,7 +4631,7 @@ class LocalAIAssistantModule(BaseModuleView):
 
         tk.Label(
             card,
-            text="EVREN AI (SSB / SAYZEK) API Ayarları",
+            text="AI Sunucu ve Model Bağlantı Ayarları",
             font=("Segoe UI", 13, "bold"),
             bg=THEME["bg_card"],
             fg=THEME["text_primary"]
@@ -4619,17 +4639,82 @@ class LocalAIAssistantModule(BaseModuleView):
 
         tk.Label(
             card,
-            text="Kendi Kaggle/Colab AI sunucunuzu (https://....trycloudflare.com/v1) veya EVREN API'yi buraya bağlayabilirsiniz. Kendi sunucunuzu bağladığınızda EVREN ile hiçbir bağlantı kurulmaz.",
+            text="Google Gemini API (kalıcı / ücretsiz 7/24), kendi Kaggle/Colab GPU sunucunuzu veya EVREN API'yi bağlayabilirsiniz.",
             font=("Segoe UI", 9),
             bg=THEME["bg_card"],
             fg=THEME["text_secondary"],
             wraplength=460,
             justify="left"
-        ).pack(anchor="w", pady=(0, 14))
+        ).pack(anchor="w", pady=(0, 10))
+
+        preset_row = tk.Frame(card, bg=THEME["bg_card"])
+        preset_row.pack(fill="x", pady=(0, 12))
+
+        def _preset_gemini():
+            url_var.set("https://generativelanguage.googleapis.com/v1beta/openai")
+            status_lbl.config(
+                text="Google AI Studio'dan aldığınız API anahtarınızı (AIza...) yukarıya girip 'Kaydet ve Test Et'e tıklayın. (7/24 kalıcıdır, adres hiç kapanmaz)",
+                fg=THEME["accent"]
+            )
+            key_entry.focus_set()
+
+        def _preset_kaggle():
+            key_var.set("burak-ozel-ai-2026")
+            status_lbl.config(
+                text="Kaggle not defterinizdeki güncel https://....trycloudflare.com/v1 adresini aşağıya girin.",
+                fg=THEME["warning"]
+            )
+            url_entry.focus_set()
+
+        def _preset_evren():
+            url_var.set(self.EVREN_DEFAULT_BASE_URL)
+            status_lbl.config(
+                text="EVREN AI API anahtarınızı yukarıya girip 'Kaydet ve Test Et'e tıklayın.",
+                fg=THEME["text_secondary"]
+            )
+
+        tk.Button(
+            preset_row,
+            text="✨ Google Gemini (Kalıcı 7/24)",
+            command=_preset_gemini,
+            font=("Segoe UI", 8, "bold"),
+            bg="#1e3a8a",
+            fg="#93c5fd",
+            bd=0,
+            padx=10,
+            pady=5,
+            cursor="hand2"
+        ).pack(side="left", padx=(0, 6))
+
+        tk.Button(
+            preset_row,
+            text="🚀 Kaggle AI (Geçici)",
+            command=_preset_kaggle,
+            font=("Segoe UI", 8, "bold"),
+            bg=THEME["bg_card_hover"],
+            fg=THEME["text_primary"],
+            bd=0,
+            padx=10,
+            pady=5,
+            cursor="hand2"
+        ).pack(side="left", padx=(0, 6))
+
+        tk.Button(
+            preset_row,
+            text="🇹🇷 EVREN AI",
+            command=_preset_evren,
+            font=("Segoe UI", 8, "bold"),
+            bg=THEME["bg_card_hover"],
+            fg=THEME["text_secondary"],
+            bd=0,
+            padx=10,
+            pady=5,
+            cursor="hand2"
+        ).pack(side="left")
 
         tk.Label(
             card,
-            text="API Anahtarı / Şifreniz (Kaggle için: burak-ozel-ai-2026):",
+            text="API Anahtarı / Şifreniz (Gemini için: AIza... | Kaggle için: burak-ozel-ai-2026):",
             font=("Segoe UI", 9, "bold"),
             bg=THEME["bg_card"],
             fg=THEME["text_primary"]
@@ -4672,7 +4757,7 @@ class LocalAIAssistantModule(BaseModuleView):
 
         tk.Button(
             key_row,
-            text="🚀 Kaggle Şifrem",
+            text="🚀 Kaggle Şifresi",
             command=lambda: key_var.set("burak-ozel-ai-2026"),
             font=("Segoe UI", 8, "bold"),
             bg=THEME["accent"],
@@ -4685,7 +4770,7 @@ class LocalAIAssistantModule(BaseModuleView):
 
         tk.Label(
             card,
-            text="Sunucu Adresi (Base URL — Kaggle https://....trycloudflare.com/v1):",
+            text="Sunucu Adresi (Base URL):",
             font=("Segoe UI", 9, "bold"),
             bg=THEME["bg_card"],
             fg=THEME["text_primary"]
@@ -4735,14 +4820,25 @@ class LocalAIAssistantModule(BaseModuleView):
                     timeout=6.0,
                 )
                 if r.status_code == 200:
-                    count = len(r.json().get("data", []))
-                    status_lbl.config(
-                        text=f"Bağlantı başarılı! {count} EVREN modeli listelendi.",
-                        fg=THEME["success"]
-                    )
+                    models = self._filter_evren_chat_models(r.json().get("data", []), base_url=new_url)
+                    count = len(models)
+                    is_gemini = "generativelanguage.googleapis.com" in new_url.lower()
+                    if is_gemini:
+                        status_lbl.config(
+                            text=f"Bağlantı başarılı! ✨ Google Gemini aktif ({count} model hazır, kalıcı 7/24).",
+                            fg=THEME["success"]
+                        )
+                    else:
+                        status_lbl.config(
+                            text=f"Bağlantı başarılı! {count} AI modeli listelendi.",
+                            fg=THEME["success"]
+                        )
                 else:
+                    err_hint = r.text[:140]
+                    if r.status_code == 400 and ("API key" in err_hint or "INVALID_ARGUMENT" in err_hint):
+                        err_hint = "Geçersiz API anahtarı. Google AI Studio'dan aldığınız anahtarı kontrol edin."
                     status_lbl.config(
-                        text=f"Sunucu yanıtı HTTP {r.status_code}: {r.text[:120]}",
+                        text=f"Sunucu yanıtı HTTP {r.status_code}: {err_hint}",
                         fg="#ef4444"
                     )
             except Exception as exc:
@@ -5180,7 +5276,12 @@ class LocalAIAssistantModule(BaseModuleView):
                                     self._append_file_card_to_chat(file_rel)
                     except Exception:
                         pass
-                ai_title = "🚀 Kendi AI (32B)\n" if "ssyz.org.tr" not in self.evren_base_url.lower() else "✦ AI Studio\n"
+                if "generativelanguage.googleapis.com" in self.evren_base_url.lower():
+                    ai_title = f"✨ Google Gemini ({self.evren_model or 'Flash'})\n"
+                elif "ssyz.org.tr" not in self.evren_base_url.lower():
+                    ai_title = "🚀 Kendi AI (32B)\n"
+                else:
+                    ai_title = "✦ AI Studio\n"
                 self.chat_text.insert("end", ai_title, "assistant")
                 self.chat_text.insert("end", f"{content}\n\n", "body")
             elif role == "notice":
@@ -9324,6 +9425,7 @@ render();
         tc_map = {}
         header_printed = False
         char_count = 0
+        is_gemini = "generativelanguage.googleapis.com" in self.evren_base_url.lower()
         is_custom_srv = "ssyz.org.tr" not in self.evren_base_url.lower()
 
         payload = {
@@ -9331,7 +9433,7 @@ render();
             "messages": messages,
             "stream": True,
             "temperature": 0.2 if is_custom_srv else (0.25 if step_num > 1 else 0.4),
-            "max_tokens": 384 if is_custom_srv else 4096,
+            "max_tokens": 4096 if (is_gemini or not is_custom_srv) else 384,
             **({} if is_custom_srv else self._evren_speed_payload_opts(model_name)),
         }
         if tools_for_turn and not is_custom_srv:
@@ -9416,7 +9518,12 @@ render();
                     full_so_far = "".join(content_parts).lstrip()
                     if not (full_so_far.startswith('{"name"') or full_so_far.startswith("<tool_call>")):
                         if not header_printed:
-                            hdr = "🚀 Kendi AI (32B):\n" if "ssyz.org.tr" not in self.evren_base_url else "🤖 EVREN AI:\n"
+                            if is_gemini:
+                                hdr = f"✨ Gemini ({model_name}):\n"
+                            elif "ssyz.org.tr" not in self.evren_base_url:
+                                hdr = "🚀 Kendi AI (32B):\n"
+                            else:
+                                hdr = "🤖 EVREN AI:\n"
                             self._append_stream_text(hdr, "assistant")
                             header_printed = True
                         self._append_stream_text(piece)
@@ -10109,8 +10216,14 @@ render();
             elif is_evren:
                 reply_text, executed_tools = self._run_evren_turn(model_name, chat_messages, tools_for_turn, user_text)
                 used_m = self.evren_model or model_name
+                is_gemini = "generativelanguage.googleapis.com" in self.evren_base_url.lower()
                 is_custom_srv = "ssyz.org.tr" not in self.evren_base_url.lower()
-                badge_lbl = f"● 🚀 Kendi AI Aktif ({used_m})" if is_custom_srv else f"● EVREN AI Aktif ({used_m})"
+                if is_gemini:
+                    badge_lbl = f"● ✨ Google Gemini Aktif ({used_m})"
+                elif is_custom_srv:
+                    badge_lbl = f"● 🚀 Kendi AI Aktif ({used_m})"
+                else:
+                    badge_lbl = f"● EVREN AI Aktif ({used_m})"
                 self.after(0, lambda b=badge_lbl: self.ollama_badge.config(
                     text=b, fg=THEME["success"]
                 ))
