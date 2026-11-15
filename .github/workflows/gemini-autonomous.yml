@@ -1,0 +1,61 @@
+name: Gemini Autonomous Cloud Developer
+
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: "Gelistirme gorevi"
+        required: false
+        default: "Read AGENT_INSTRUCTIONS.md. Improve card decomposition (preserve background icons, exact OCR positions and font sizes), interactive canvas editing, and natural-language AI commands in uygulama.py, card_layer_engine.py, and web_server.py. Run tests and keep all tests passing."
+  schedule:
+    # Her 6 saatte bir PC kapaliyken bulutta otomatik kontrol ve iyilestirme
+    - cron: "0 */6 * * *"
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  gemini-dev:
+    if: |
+      github.event_name != 'issue_comment' ||
+      contains(github.event.comment.body, '@gemini-cli')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies & verify baseline tests
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pytest
+          python run_e2e_tests.py || true
+
+      - name: Run Gemini CLI Autonomous Agent
+        if: env.HAS_KEY == 'true'
+        env:
+          HAS_KEY: ${{ secrets.GEMINI_API_KEY != '' }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: google-github-actions/run-gemini-cli@v0
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          prompt: |
+            ${{ github.event.inputs.task || github.event.comment.body || 'Read AGENT_INSTRUCTIONS.md and improve card decomposition, interactive canvas editing, and natural-language command handling while keeping all tests in run_e2e_tests.py and pytest green.' }}
+
+      - name: Notice if GEMINI_API_KEY is missing
+        if: env.HAS_KEY != 'true'
+        env:
+          HAS_KEY: ${{ secrets.GEMINI_API_KEY != '' }}
+        run: |
+          echo "GEMINI_API_KEY secret is not configured yet. Add it under Settings -> Secrets and variables -> Actions."
