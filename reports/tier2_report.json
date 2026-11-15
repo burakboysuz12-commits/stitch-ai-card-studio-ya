@@ -1,0 +1,661 @@
+{
+  "summary": {
+    "total": 72,
+    "passed": 72,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "total_duration_seconds": 22.5435,
+    "timestamp": "2026-11-15T09:50:36Z"
+  },
+  "tests": [
+    {
+      "id": "test_tier2_boundaries.TestFeature10CanvasIntegrationBoundaries.test_f10_b01_directory_traversal_attempts_blocked",
+      "name": "test_f10_b01_directory_traversal_attempts_blocked",
+      "class": "TestFeature10CanvasIntegrationBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.5963694000092801,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature10CanvasIntegrationBoundaries.test_f10_b02_non_existent_static_assets_return_404",
+      "name": "test_f10_b02_non_existent_static_assets_return_404",
+      "class": "TestFeature10CanvasIntegrationBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.5379653999989387,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature10CanvasIntegrationBoundaries.test_f10_b03_missing_editor_html_fallback",
+      "name": "test_f10_b03_missing_editor_html_fallback",
+      "class": "TestFeature10CanvasIntegrationBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.5342949999903794,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature10CanvasIntegrationBoundaries.test_f10_b04_url_query_parameters_and_fragments",
+      "name": "test_f10_b04_url_query_parameters_and_fragments",
+      "class": "TestFeature10CanvasIntegrationBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.5507894000038505,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature10CanvasIntegrationBoundaries.test_f10_b05_trailing_slash_strict_routing",
+      "name": "test_f10_b05_trailing_slash_strict_routing",
+      "class": "TestFeature10CanvasIntegrationBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.5530767000163905,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature10CanvasIntegrationBoundaries.test_f10_b06_canvas_isotropic_aspect_ratio_clamping",
+      "name": "test_f10_b06_canvas_isotropic_aspect_ratio_clamping",
+      "class": "TestFeature10CanvasIntegrationBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.00010460001067258418,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature11TurkishNlpBoundaries.test_f11_b01_empty_and_whitespace_command_handling",
+      "name": "test_f11_b01_empty_and_whitespace_command_handling",
+      "class": "TestFeature11TurkishNlpBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.0012570999970193952,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature11TurkishNlpBoundaries.test_f11_b02_unrecognized_command_graceful_fallback",
+      "name": "test_f11_b02_unrecognized_command_graceful_fallback",
+      "class": "TestFeature11TurkishNlpBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.00911780001479201,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature11TurkishNlpBoundaries.test_f11_b03_extreme_length_command_string",
+      "name": "test_f11_b03_extreme_length_command_string",
+      "class": "TestFeature11TurkishNlpBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.10116650001145899,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature11TurkishNlpBoundaries.test_f11_b04_turkish_unicode_special_characters",
+      "name": "test_f11_b04_turkish_unicode_special_characters",
+      "class": "TestFeature11TurkishNlpBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.0058825000014621764,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature11TurkishNlpBoundaries.test_f11_b05_boundary_clamping_left_and_top",
+      "name": "test_f11_b05_boundary_clamping_left_and_top",
+      "class": "TestFeature11TurkishNlpBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.0051528999756556,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature11TurkishNlpBoundaries.test_f11_b06_boundary_clamping_right_and_bottom",
+      "name": "test_f11_b06_boundary_clamping_right_and_bottom",
+      "class": "TestFeature11TurkishNlpBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.005796999990707263,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature12E2EIntegrationCliBoundaries.test_f12_b01_invalid_tier_cli_argument_exits_2",
+      "name": "test_f12_b01_invalid_tier_cli_argument_exits_2",
+      "class": "TestFeature12E2EIntegrationCliBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.1559865000017453,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature12E2EIntegrationCliBoundaries.test_f12_b02_non_matching_filter_exits_0_with_warning",
+      "name": "test_f12_b02_non_matching_filter_exits_0_with_warning",
+      "class": "TestFeature12E2EIntegrationCliBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.9233423999976367,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature12E2EIntegrationCliBoundaries.test_f12_b03_invalid_discovery_start_dir_exits_2",
+      "name": "test_f12_b03_invalid_discovery_start_dir_exits_2",
+      "class": "TestFeature12E2EIntegrationCliBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.178593999997247,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature12E2EIntegrationCliBoundaries.test_f12_b04_unwritable_json_output_path_exits_2",
+      "name": "test_f12_b04_unwritable_json_output_path_exits_2",
+      "class": "TestFeature12E2EIntegrationCliBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 1.473071800020989,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature12E2EIntegrationCliBoundaries.test_f12_b05_unwritable_junit_xml_output_path_exits_2",
+      "name": "test_f12_b05_unwritable_junit_xml_output_path_exits_2",
+      "class": "TestFeature12E2EIntegrationCliBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 1.4005219000100624,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature12E2EIntegrationCliBoundaries.test_f12_b06_combined_cli_flags_verbose_and_fail_fast",
+      "name": "test_f12_b06_combined_cli_flags_verbose_and_fail_fast",
+      "class": "TestFeature12E2EIntegrationCliBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 1.4191885000036564,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature1GitRepoCleanArtifactsBoundaries.test_f1_b01_nested_deep_gitignore_matching",
+      "name": "test_f1_b01_nested_deep_gitignore_matching",
+      "class": "TestFeature1GitRepoCleanArtifactsBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.271183699980611,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature1GitRepoCleanArtifactsBoundaries.test_f1_b02_negation_rule_edge_condition_for_env_example",
+      "name": "test_f1_b02_negation_rule_edge_condition_for_env_example",
+      "class": "TestFeature1GitRepoCleanArtifactsBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.363688599987654,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature1GitRepoCleanArtifactsBoundaries.test_f1_b03_simulated_large_file_and_binary_exclusion",
+      "name": "test_f1_b03_simulated_large_file_and_binary_exclusion",
+      "class": "TestFeature1GitRepoCleanArtifactsBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.632359399984125,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature1GitRepoCleanArtifactsBoundaries.test_f1_b04_whitespace_and_special_characters_in_paths",
+      "name": "test_f1_b04_whitespace_and_special_characters_in_paths",
+      "class": "TestFeature1GitRepoCleanArtifactsBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.4156496000068728,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature1GitRepoCleanArtifactsBoundaries.test_f1_b05_git_command_execution_in_non_git_sandbox",
+      "name": "test_f1_b05_git_command_execution_in_non_git_sandbox",
+      "class": "TestFeature1GitRepoCleanArtifactsBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.0783952999918256,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature1GitRepoCleanArtifactsBoundaries.test_f1_b06_case_insensitive_extension_matching",
+      "name": "test_f1_b06_case_insensitive_extension_matching",
+      "class": "TestFeature1GitRepoCleanArtifactsBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.37546999999904074,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature2WebServerBoundaries.test_f2_b01_non_numeric_and_empty_port_environment_handling",
+      "name": "test_f2_b01_non_numeric_and_empty_port_environment_handling",
+      "class": "TestFeature2WebServerBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.003282799996668473,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature2WebServerBoundaries.test_f2_b02_port_out_of_range_and_ephemeral_bounds",
+      "name": "test_f2_b02_port_out_of_range_and_ephemeral_bounds",
+      "class": "TestFeature2WebServerBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.0005423999973572791,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature2WebServerBoundaries.test_f2_b03_invalid_host_binding_socket_error",
+      "name": "test_f2_b03_invalid_host_binding_socket_error",
+      "class": "TestFeature2WebServerBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.0015930999943520874,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature2WebServerBoundaries.test_f2_b04_query_parameters_and_fragment_handling_on_api",
+      "name": "test_f2_b04_query_parameters_and_fragment_handling_on_api",
+      "class": "TestFeature2WebServerBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.5542796999798156,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature2WebServerBoundaries.test_f2_b05_get_request_with_unexpected_body",
+      "name": "test_f2_b05_get_request_with_unexpected_body",
+      "class": "TestFeature2WebServerBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.5497379000007641,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature2WebServerBoundaries.test_f2_b06_unsupported_http_methods_and_post_on_health",
+      "name": "test_f2_b06_unsupported_http_methods_and_post_on_health",
+      "class": "TestFeature2WebServerBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.5562206000031438,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature3CloudAgentPlaybookBoundaries.test_f3_b01_ci_yaml_strict_schema_and_mandatory_keys",
+      "name": "test_f3_b01_ci_yaml_strict_schema_and_mandatory_keys",
+      "class": "TestFeature3CloudAgentPlaybookBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.00402110000140965,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature3CloudAgentPlaybookBoundaries.test_f3_b02_ci_workflow_step_commands_validity",
+      "name": "test_f3_b02_ci_workflow_step_commands_validity",
+      "class": "TestFeature3CloudAgentPlaybookBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.006264700001338497,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature3CloudAgentPlaybookBoundaries.test_f3_b03_keepalive_workflow_schedule_and_secret_boundary",
+      "name": "test_f3_b03_keepalive_workflow_schedule_and_secret_boundary",
+      "class": "TestFeature3CloudAgentPlaybookBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.006932499993126839,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature3CloudAgentPlaybookBoundaries.test_f3_b04_agent_instructions_mandatory_rule_tokens",
+      "name": "test_f3_b04_agent_instructions_mandatory_rule_tokens",
+      "class": "TestFeature3CloudAgentPlaybookBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.00042520000715740025,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature3CloudAgentPlaybookBoundaries.test_f3_b05_procfile_format_and_whitespace_boundary",
+      "name": "test_f3_b05_procfile_format_and_whitespace_boundary",
+      "class": "TestFeature3CloudAgentPlaybookBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.000677400006679818,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature3CloudAgentPlaybookBoundaries.test_f3_b06_dockerfile_instruction_ordering_and_healthcheck",
+      "name": "test_f3_b06_dockerfile_instruction_ordering_and_healthcheck",
+      "class": "TestFeature3CloudAgentPlaybookBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.0019452000269666314,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature4Phase1NotificationBoundaries.test_f4_b01_missing_report_error_handling",
+      "name": "test_f4_b01_missing_report_error_handling",
+      "class": "TestFeature4Phase1NotificationBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.026954000000841916,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature4Phase1NotificationBoundaries.test_f4_b02_empty_and_whitespace_report_rejection",
+      "name": "test_f4_b02_empty_and_whitespace_report_rejection",
+      "class": "TestFeature4Phase1NotificationBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.01696009997976944,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature4Phase1NotificationBoundaries.test_f4_b03_markdown_code_block_backtick_balance",
+      "name": "test_f4_b03_markdown_code_block_backtick_balance",
+      "class": "TestFeature4Phase1NotificationBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.000680500001180917,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature4Phase1NotificationBoundaries.test_f4_b04_markdown_table_column_alignment_and_structure",
+      "name": "test_f4_b04_markdown_table_column_alignment_and_structure",
+      "class": "TestFeature4Phase1NotificationBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.0003525000065565109,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature4Phase1NotificationBoundaries.test_f4_b05_unicode_encoding_preservation_turkish_characters",
+      "name": "test_f4_b05_unicode_encoding_preservation_turkish_characters",
+      "class": "TestFeature4Phase1NotificationBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.00021430000197142363,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature4Phase1NotificationBoundaries.test_f4_b06_metadata_header_case_insensitivity_and_whitespace",
+      "name": "test_f4_b06_metadata_header_case_insensitivity_and_whitespace",
+      "class": "TestFeature4Phase1NotificationBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.0004891999997198582,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature5MetricsBoundaries.test_f5_b01_ssim_all_black_vs_all_white_extremes",
+      "name": "test_f5_b01_ssim_all_black_vs_all_white_extremes",
+      "class": "TestFeature5MetricsBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.884126799996011,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature5MetricsBoundaries.test_f5_b02_dhash_distance_extremes_identical_vs_inverted_gradient",
+      "name": "test_f5_b02_dhash_distance_extremes_identical_vs_inverted_gradient",
+      "class": "TestFeature5MetricsBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.0009711000020615757,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature5MetricsBoundaries.test_f5_b03_corrupt_and_truncated_image_payload_handling",
+      "name": "test_f5_b03_corrupt_and_truncated_image_payload_handling",
+      "class": "TestFeature5MetricsBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.16226069998811,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature5MetricsBoundaries.test_f5_b04_mismatched_image_dimensions_resizing_boundary",
+      "name": "test_f5_b04_mismatched_image_dimensions_resizing_boundary",
+      "class": "TestFeature5MetricsBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.610902000014903,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature5MetricsBoundaries.test_f5_b05_threshold_evaluation_boundary_precision_ssim",
+      "name": "test_f5_b05_threshold_evaluation_boundary_precision_ssim",
+      "class": "TestFeature5MetricsBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 6.230000872164965e-05,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature5MetricsBoundaries.test_f5_b06_threshold_evaluation_boundary_precision_dhash",
+      "name": "test_f5_b06_threshold_evaluation_boundary_precision_dhash",
+      "class": "TestFeature5MetricsBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 2.7699978090822697e-05,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature6GeometryBoundaries.test_f6_b01_elements_at_extreme_canvas_borders",
+      "name": "test_f6_b01_elements_at_extreme_canvas_borders",
+      "class": "TestFeature6GeometryBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.001993299985770136,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature6GeometryBoundaries.test_f6_b02_negative_coordinates_rejection_and_clamping",
+      "name": "test_f6_b02_negative_coordinates_rejection_and_clamping",
+      "class": "TestFeature6GeometryBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.09212750001461245,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature6GeometryBoundaries.test_f6_b03_zero_width_and_zero_height_elements_handling",
+      "name": "test_f6_b03_zero_width_and_zero_height_elements_handling",
+      "class": "TestFeature6GeometryBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.0009990000107791275,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature6GeometryBoundaries.test_f6_b04_extreme_aspect_ratio_scaling_invariance",
+      "name": "test_f6_b04_extreme_aspect_ratio_scaling_invariance",
+      "class": "TestFeature6GeometryBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.0008880999812390655,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature6GeometryBoundaries.test_f6_b05_legacy_squished_state_dimensions_enforcement",
+      "name": "test_f6_b05_legacy_squished_state_dimensions_enforcement",
+      "class": "TestFeature6GeometryBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.5545277999772225,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature6GeometryBoundaries.test_f6_b06_canvas_overflow_clamping_at_max_boundaries",
+      "name": "test_f6_b06_canvas_overflow_clamping_at_max_boundaries",
+      "class": "TestFeature6GeometryBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.027943799999775365,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature7InpaintingBoundaries.test_f7_b01_inpainting_non_existent_image_path_error",
+      "name": "test_f7_b01_inpainting_non_existent_image_path_error",
+      "class": "TestFeature7InpaintingBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.00018250002176500857,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature7InpaintingBoundaries.test_f7_b02_inpainting_solid_uniform_background_card",
+      "name": "test_f7_b02_inpainting_solid_uniform_background_card",
+      "class": "TestFeature7InpaintingBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.19661889999406412,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature7InpaintingBoundaries.test_f7_b03_inpainting_completely_black_canvas",
+      "name": "test_f7_b03_inpainting_completely_black_canvas",
+      "class": "TestFeature7InpaintingBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.8217965000076219,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature7InpaintingBoundaries.test_f7_b04_inpainting_completely_white_canvas",
+      "name": "test_f7_b04_inpainting_completely_white_canvas",
+      "class": "TestFeature7InpaintingBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.6217192999902181,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature7InpaintingBoundaries.test_f7_b05_inpainting_preserves_native_1024x686_from_rescaled_input",
+      "name": "test_f7_b05_inpainting_preserves_native_1024x686_from_rescaled_input",
+      "class": "TestFeature7InpaintingBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 1.0479388999810908,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature7InpaintingBoundaries.test_f7_b06_selective_mask_boundary_zero_leakage_to_icons",
+      "name": "test_f7_b06_selective_mask_boundary_zero_leakage_to_icons",
+      "class": "TestFeature7InpaintingBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 1.3162039000017103,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature8DecompositionBoundaries.test_f8_b01_decomposition_and_rendering_empty_layers",
+      "name": "test_f8_b01_decomposition_and_rendering_empty_layers",
+      "class": "TestFeature8DecompositionBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.34975480000139214,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature8DecompositionBoundaries.test_f8_b02_overlapping_layer_z_order_compositing",
+      "name": "test_f8_b02_overlapping_layer_z_order_compositing",
+      "class": "TestFeature8DecompositionBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.10163990000728518,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature8DecompositionBoundaries.test_f8_b03_rgba_alpha_channel_extremes_0_vs_255",
+      "name": "test_f8_b03_rgba_alpha_channel_extremes_0_vs_255",
+      "class": "TestFeature8DecompositionBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.046607600001152605,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature8DecompositionBoundaries.test_f8_b04_corrupt_layer_asset_path_exception_handling",
+      "name": "test_f8_b04_corrupt_layer_asset_path_exception_handling",
+      "class": "TestFeature8DecompositionBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.03688309999415651,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature8DecompositionBoundaries.test_f8_b05_missing_layer_asset_path_graceful_recovery",
+      "name": "test_f8_b05_missing_layer_asset_path_graceful_recovery",
+      "class": "TestFeature8DecompositionBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.03409269999247044,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature8DecompositionBoundaries.test_f8_b06_out_of_bounds_and_zero_dimension_layers",
+      "name": "test_f8_b06_out_of_bounds_and_zero_dimension_layers",
+      "class": "TestFeature8DecompositionBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.037192200019489974,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature9WebServerApiBoundaries.test_f9_b01_malformed_json_syntax_returns_400",
+      "name": "test_f9_b01_malformed_json_syntax_returns_400",
+      "class": "TestFeature9WebServerApiBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.5437007999862544,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature9WebServerApiBoundaries.test_f9_b02_non_dict_json_payload_returns_400",
+      "name": "test_f9_b02_non_dict_json_payload_returns_400",
+      "class": "TestFeature9WebServerApiBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.5419695999880787,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature9WebServerApiBoundaries.test_f9_b03_empty_body_post_handling",
+      "name": "test_f9_b03_empty_body_post_handling",
+      "class": "TestFeature9WebServerApiBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.5297014999960084,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature9WebServerApiBoundaries.test_f9_b04_invalid_design_state_schema_rejected",
+      "name": "test_f9_b04_invalid_design_state_schema_rejected",
+      "class": "TestFeature9WebServerApiBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.543962299998384,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature9WebServerApiBoundaries.test_f9_b05_unsupported_http_methods_rejected",
+      "name": "test_f9_b05_unsupported_http_methods_rejected",
+      "class": "TestFeature9WebServerApiBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.5477359999786131,
+      "error": null
+    },
+    {
+      "id": "test_tier2_boundaries.TestFeature9WebServerApiBoundaries.test_f9_b06_large_payload_2mb_boundary",
+      "name": "test_f9_b06_large_payload_2mb_boundary",
+      "class": "TestFeature9WebServerApiBoundaries",
+      "module": "test_tier2_boundaries",
+      "status": "PASS",
+      "duration": 0.5643942000169773,
+      "error": null
+    }
+  ]
+}

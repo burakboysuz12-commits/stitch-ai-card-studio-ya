@@ -8,6 +8,7 @@ import json
 import os
 import re
 import tempfile
+import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any, Dict, List, Optional, Tuple
@@ -21,6 +22,8 @@ ACTIVE_DESIGN_STATE_PATH = os.environ.get(
     "ACTIVE_DESIGN_STATE_PATH",
     os.path.join(BASE_DIR, "ai_projects", "_active_design_state.json")
 )
+
+_STATE_WRITE_LOCK = threading.Lock()
 
 
 def get_active_design_state_path() -> str:
@@ -115,30 +118,98 @@ def get_default_design_state() -> Dict[str, Any]:
         "title": "Kartvizit Tasarımı",
         "width": 1024,
         "height": 686,
+        "canvas": {"width": 1024, "height": 686},
         "background": "#0f1116",
         "elements": [],
+        "layers": [],
         "updated_at": time.time(),
     }
 
 
+def clamp_layer_boundaries(
+    layers: List[Dict[str, Any]], canvas_w: int = 1024, canvas_h: int = 686
+) -> List[Dict[str, Any]]:
+    """Strictly clamps all element coordinates to [0, canvas_w - el_w] and [0, canvas_h - el_h]."""
+    for el in layers:
+        if not isinstance(el, dict):
+            continue
+        try:
+            el_w = int(float(el.get("w", el.get("width", 100))))
+        except (ValueError, TypeError):
+            el_w = 100
+        try:
+            el_h = int(float(el.get("h", el.get("height", 40))))
+        except (ValueError, TypeError):
+            el_h = 40
+        max_x = max(0, canvas_w - el_w)
+        max_y = max(0, canvas_h - el_h)
+        if "x" in el:
+            try:
+                el["x"] = max(0, min(int(float(el["x"])), max_x))
+            except (ValueError, TypeError):
+                el["x"] = 0
+        if "y" in el:
+            try:
+                el["y"] = max(0, min(int(float(el["y"])), max_y))
+            except (ValueError, TypeError):
+                el["y"] = 0
+    return layers
+
+
 def load_design_state() -> Dict[str, Any]:
-    """Loads active design state from disk or returns default."""
+    """Loads active design state from disk or initializes from card_layer_engine if absent."""
     state_path = get_active_design_state_path()
     if os.path.isfile(state_path):
         try:
             with open(state_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 if isinstance(data, dict):
+                    if "elements" not in data and "layers" in data:
+                        data["elements"] = data["layers"]
+                    elif "layers" not in data and "elements" in data:
+                        data["layers"] = data["elements"]
                     if not isinstance(data.get("elements"), list):
                         data["elements"] = []
+                    if not isinstance(data.get("layers"), list):
+                        data["layers"] = data.get("elements", [])
                     return data
         except Exception:
             pass
+
+    # If no active state file exists, initialize from card_layer_engine.decompose_card
+    try:
+        import card_layer_engine
+        image_candidates = [
+            os.path.join(BASE_DIR, "kartvizit_son_orijinal.png"),
+            os.path.join(os.getcwd(), "kartvizit_son_orijinal.png"),
+            "kartvizit_son_orijinal.png",
+        ]
+        target_img = next((p for p in image_candidates if os.path.isfile(p)), None)
+        if target_img:
+            decomp = card_layer_engine.decompose_card(target_img)
+            if decomp and isinstance(decomp.get("layers"), list) and decomp["layers"]:
+                bg_path = decomp.get("background") or decomp.get("background_image") or "#0f1116"
+                initial_state = {
+                    "title": "Görsel Parça Editörü (kartvizit_son_orijinal.png)",
+                    "width": 1024,
+                    "height": 686,
+                    "canvas": {"width": 1024, "height": 686},
+                    "background": bg_path,
+                    "background_image": decomp.get("background_image", bg_path),
+                    "elements": decomp.get("layers", []),
+                    "layers": decomp.get("layers", []),
+                    "updated_at": time.time(),
+                }
+                save_design_state(initial_state)
+                return initial_state
+    except Exception:
+        pass
+
     return get_default_design_state()
 
 
 def save_design_state(state: Dict[str, Any]) -> bool:
-    """Saves active design state to disk atomically."""
+    """Saves active design state to disk atomically with concurrency locking and retry on Windows."""
     if not is_valid_design_state(state):
         return False
     try:
@@ -148,30 +219,46 @@ def save_design_state(state: Dict[str, Any]) -> bool:
             os.makedirs(dir_name, exist_ok=True)
 
         state_copy = copy.deepcopy(state)
-        # Ensure elements is always a list
+        # Ensure elements and layers are always lists
         if not isinstance(state_copy.get("elements"), list):
             if isinstance(state_copy.get("layers"), list):
                 state_copy["elements"] = state_copy["layers"]
             else:
                 state_copy["elements"] = []
+        if not isinstance(state_copy.get("layers"), list):
+            state_copy["layers"] = state_copy["elements"]
 
         state_copy["updated_at"] = time.time()
 
-        temp_fd, temp_path = tempfile.mkstemp(dir=dir_name or None, prefix="_state_", suffix=".tmp")
-        try:
-            with os.fdopen(temp_fd, "w", encoding="utf-8") as f:
-                json.dump(state_copy, f, ensure_ascii=False, indent=2)
-            os.replace(temp_path, state_path)
-            return True
-        except Exception:
-            if os.path.exists(temp_path):
-                try:
-                    os.remove(temp_path)
-                except Exception:
-                    pass
-            raise
+        with _STATE_WRITE_LOCK:
+            temp_fd, temp_path = tempfile.mkstemp(dir=dir_name or None, prefix="_state_", suffix=".tmp")
+            try:
+                with os.fdopen(temp_fd, "w", encoding="utf-8") as f:
+                    json.dump(state_copy, f, ensure_ascii=False, indent=2)
+
+                # Retry loop up to 5 attempts with 0.02s sleep catching PermissionError (WinError 5)
+                for attempt in range(5):
+                    try:
+                        os.replace(temp_path, state_path)
+                        return True
+                    except PermissionError:
+                        if attempt < 4:
+                            time.sleep(0.02)
+                        else:
+                            raise
+                return True
+            except Exception:
+                if os.path.exists(temp_path):
+                    try:
+                        os.remove(temp_path)
+                    except Exception:
+                        pass
+                raise
     except Exception:
         return False
+
+
+_NLP_RECURSION_GUARD = False
 
 
 def process_natural_language_edit(
@@ -179,37 +266,100 @@ def process_natural_language_edit(
 ) -> Tuple[Dict[str, Any], str, bool]:
     """
     Applies natural language edit commands to design state.
+    Delegates to card_layer_engine.apply_natural_language_command when appropriate.
     Returns (updated_state, summary_message, success).
     """
+    global _NLP_RECURSION_GUARD
+
     if not isinstance(state, dict):
         state = get_default_design_state()
 
-    prompt_raw = (prompt or "").strip()
+    prompt_raw = (prompt if isinstance(prompt, str) else str(prompt or "")).strip()
     if not prompt_raw:
         return state, "Boş komut iletildi.", False
 
+    selected_id = str(selected_id) if selected_id is not None else ""
     pl = prompt_raw.lower()
     updated = copy.deepcopy(state)
     elements = updated.get("elements")
     if not isinstance(elements, list):
-        elements = []
+        if isinstance(updated.get("layers"), list):
+            elements = updated["layers"]
+        else:
+            elements = []
         updated["elements"] = elements
-    notes: List[str] = []
+    updated["layers"] = elements
 
-    # Find selected element
-    sel_el = next((e for e in elements if isinstance(e, dict) and str(e.get("id")) == str(selected_id)), None)
+    canvas_w = int(updated.get("width", 1024))
+    canvas_h = int(updated.get("height", 686))
+    notes: List[str] = []
 
     # 1. Background color edit
     if any(k in pl for k in ("arka plan", "arkaplan", "zemin", "background")):
         c = resolve_color(pl)
         if c:
             updated["background"] = c
+            updated["background_image"] = c
             notes.append(f"Arka plan rengi {c} yapıldı")
         elif "şeffaf" in pl or "transparent" in pl:
             updated["background"] = "transparent"
+            updated["background_image"] = "transparent"
             notes.append("Arka plan şeffaf yapıldı")
+        if notes:
+            summary = "; ".join(notes)
+            save_design_state(updated)
+            return updated, summary, True
 
-    # 2. Identify target element (selected element or mentioned semantic layer)
+    # 2. Element color edit (evaluated before engine to prevent engine interpreting color as text replacement)
+    elem_color = resolve_color(pl)
+    if elem_color and any(w in pl for w in ("renk", "rengi", "boya", "yap", "olsun", "ton")):
+        # Find target element (from selected_id or semantic layer aliases or default to isim)
+        sel_el = next((e for e in elements if isinstance(e, dict) and str(e.get("id")) == str(selected_id)), None)
+        target_el = sel_el
+        for layer_id, aliases in SEMANTIC_LAYER_ALIASES.items():
+            if any(re.search(r"\b" + re.escape(alias) + r"\b", pl) for alias in aliases):
+                found = next((e for e in elements if isinstance(e, dict) and str(e.get("id")) == layer_id), None)
+                if found:
+                    target_el = found
+                    break
+        if not target_el:
+            target_el = next((e for e in elements if isinstance(e, dict) and str(e.get("id")) == "isim"), elements[0] if elements else None)
+
+        if target_el:
+            target_el["color"] = elem_color
+            notes.append(f"#{target_el.get('id')} rengi {elem_color} yapıldı")
+            clamp_layer_boundaries(elements, canvas_w, canvas_h)
+            updated["elements"] = elements
+            updated["layers"] = elements
+            summary = "; ".join(notes)
+            save_design_state(updated)
+            return updated, summary, True
+
+    # 3. Delegate to card_layer_engine.apply_natural_language_command if not in recursion guard
+    if not _NLP_RECURSION_GUARD:
+        _NLP_RECURSION_GUARD = True
+        try:
+            import card_layer_engine
+            target_cmd = prompt_raw
+            if not any(kw in pl for kw in ("isim", "unvan", "ünvan", "telefon", "adres", "eposta", "logo", "qr", "slogan")):
+                target_name = selected_id if selected_id else "isim"
+                target_cmd = f"{target_name} {prompt_raw}"
+
+            layers_in = copy.deepcopy(elements)
+            updated_layers, engine_summary = card_layer_engine.apply_natural_language_command(target_cmd, layers_in)
+            if updated_layers != layers_in or any(kw in engine_summary for kw in ("başarıyla", "ortalandı", "yaslandı", "kaydırıldı", "büyütüldü", "küçültüldü", "güncellendi", "rengi")):
+                elements[:] = clamp_layer_boundaries(updated_layers, canvas_w, canvas_h)
+                updated["elements"] = elements
+                updated["layers"] = elements
+                save_design_state(updated)
+                return updated, engine_summary, True
+        except Exception:
+            pass
+        finally:
+            _NLP_RECURSION_GUARD = False
+
+    # 4. Identify target element (selected element or mentioned semantic layer or fallback to isim)
+    sel_el = next((e for e in elements if isinstance(e, dict) and str(e.get("id")) == str(selected_id)), None)
     target_el = sel_el
     target_layer_id = None
     for layer_id, aliases in SEMANTIC_LAYER_ALIASES.items():
@@ -220,58 +370,71 @@ def process_natural_language_edit(
                 target_layer_id = layer_id
                 break
 
-    # 3. Delete command
+    if not target_el:
+        target_el = next((e for e in elements if isinstance(e, dict) and str(e.get("id")) == "isim"), elements[0] if elements else None)
+
+    # 5. Delete command
     if any(w in pl for w in ("sil", "kaldır", "kaldir", "yok et")):
         if target_el:
             elements[:] = [e for e in elements if isinstance(e, dict) and e.get("id") != target_el.get("id")]
             notes.append(f"#{target_el.get('id')} katmanı silindi")
             target_el = None
 
-    # 4. Scaling (büyüt / büyük yap / küçült / küçük yap) - evaluated before text replacement to fix "ismi büyük yap"
+    def _to_num(val, default):
+        try:
+            return float(val)
+        except (ValueError, TypeError):
+            return default
+
+    def _to_int(val, default):
+        try:
+            return int(float(val))
+        except (ValueError, TypeError):
+            return default
+
+    # 6. Scaling (büyüt / büyük yap / küçült / küçük yap) - evaluated before text replacement to fix "ismi büyük yap"
     if target_el and not notes:
         if any(w in pl for w in ("büyüt", "buyut", "daha büyük", "büyük yap", "büyük olsun")):
             if "fontSize" in target_el:
-                target_el["fontSize"] = int(target_el.get("fontSize", 16) * 1.25)
-            target_el["w"] = int(target_el.get("w", 100) * 1.2)
-            target_el["h"] = int(target_el.get("h", 40) * 1.2)
+                target_el["fontSize"] = int(_to_num(target_el.get("fontSize"), 16) * 1.25)
+            target_el["w"] = int(_to_num(target_el.get("w"), 100) * 1.2)
+            target_el["h"] = int(_to_num(target_el.get("h"), 40) * 1.2)
             notes.append(f"#{target_el.get('id')} boyutu büyütüldü")
         elif any(w in pl for w in ("küçült", "kucult", "daha küçük", "küçük yap", "küçük olsun")):
             if "fontSize" in target_el:
-                target_el["fontSize"] = max(10, int(target_el.get("fontSize", 16) * 0.8))
-            target_el["w"] = max(20, int(target_el.get("w", 100) * 0.8))
-            target_el["h"] = max(15, int(target_el.get("h", 40) * 0.8))
+                target_el["fontSize"] = max(10, int(_to_num(target_el.get("fontSize"), 16) * 0.8))
+            target_el["w"] = max(20, int(_to_num(target_el.get("w"), 100) * 0.8))
+            target_el["h"] = max(15, int(_to_num(target_el.get("h"), 40) * 0.8))
             notes.append(f"#{target_el.get('id')} boyutu küçültüldü")
 
-    # 5. Alignment / Movement
+    # 6. Alignment / Movement
     if target_el and not notes:
-        canvas_w = int(updated.get("width", 1024))
-        canvas_h = int(updated.get("height", 686))
-        el_w = int(target_el.get("w", 100))
-        el_h = int(target_el.get("h", 40))
+        el_w = _to_int(target_el.get("w"), 100)
+        el_h = _to_int(target_el.get("h"), 40)
         if "ortala" in pl:
             target_el["x"] = max(0, (canvas_w - el_w) // 2)
             notes.append(f"#{target_el.get('id')} yatayda ortalandı")
         elif any(w in pl for w in ("sağa", "saga")):
-            target_el["x"] = min(canvas_w - el_w, int(target_el.get("x", 0)) + 30)
+            target_el["x"] = min(canvas_w - el_w, _to_int(target_el.get("x"), 0) + 30)
             notes.append(f"#{target_el.get('id')} sağa kaydırıldı")
         elif any(w in pl for w in ("sola",)):
-            target_el["x"] = max(0, int(target_el.get("x", 0)) - 30)
+            target_el["x"] = max(0, _to_int(target_el.get("x"), 0) - 30)
             notes.append(f"#{target_el.get('id')} sola kaydırıldı")
         elif any(w in pl for w in ("yukarı", "yukari")):
-            target_el["y"] = max(0, int(target_el.get("y", 0)) - 30)
+            target_el["y"] = max(0, _to_int(target_el.get("y"), 0) - 30)
             notes.append(f"#{target_el.get('id')} yukarı alındı")
         elif any(w in pl for w in ("aşağı", "asagi")):
-            target_el["y"] = min(canvas_h - el_h, int(target_el.get("y", 0)) + 30)
+            target_el["y"] = min(canvas_h - el_h, _to_int(target_el.get("y"), 0) + 30)
             notes.append(f"#{target_el.get('id')} aşağı alındı")
 
-    # 6. Color change for target element
+    # 7. Color change for target element
     if target_el and not notes:
         color = resolve_color(pl)
         if color and any(w in pl for w in ("renk", "rengi", "boya", "yap", "olsun", "ton")):
             target_el["color"] = color
             notes.append(f"#{target_el.get('id')} rengi {color} yapıldı")
 
-    # 7. Text content replacement
+    # 8. Text content replacement
     if target_el and not notes:
         m_yap = re.search(r"['\"]?([^'\"]+?)['\"]?\s*(?:yap|olsun|olarak değiştir)$", prompt_raw, re.IGNORECASE)
         if m_yap:
@@ -295,7 +458,7 @@ def process_natural_language_edit(
                 target_el["text"] = new_val
                 notes.append(f"#{target_el.get('id')} metni güncellendi: {new_val}")
 
-    # 8. Add element command (e.g. "metin ekle 'Yeni Metin'")
+    # 9. Add element command (e.g. "metin ekle 'Yeni Metin'")
     if not notes and any(w in pl for w in ("ekle", "yeni metin", "yazı ekle")):
         m_txt = re.search(r"['\"]([^'\"]+)['\"]", prompt_raw)
         txt = m_txt.group(1) if m_txt else "Yeni Metin"
@@ -315,6 +478,10 @@ def process_natural_language_edit(
         }
         elements.append(new_el)
         notes.append(f"Yeni #{new_id} katmanı eklendi: '{txt}'")
+
+    clamp_layer_boundaries(elements, canvas_w, canvas_h)
+    updated["elements"] = elements
+    updated["layers"] = elements
 
     if notes:
         summary = "; ".join(notes)
@@ -348,7 +515,32 @@ class StitchWebHandler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
         self.end_headers()
 
+    def _reject_unsupported_method(self):
+        try:
+            content_length = int(self.headers.get("Content-Length", 0))
+            if content_length > 0:
+                self.rfile.read(min(content_length, 1024 * 1024))
+        except Exception:
+            pass
+        self._send_json(405, {"ok": False, "error": "Method Not Allowed"})
+
+    def do_PUT(self):
+        self._reject_unsupported_method()
+
+    def do_DELETE(self):
+        self._reject_unsupported_method()
+
+    def do_PATCH(self):
+        self._reject_unsupported_method()
+
     def do_GET(self):
+        try:
+            content_length = int(self.headers.get("Content-Length", 0))
+            if content_length > 0:
+                self.rfile.read(min(content_length, 16 * 1024 * 1024))
+        except Exception:
+            pass
+
         path = urlparse(self.path).path
 
         # 1. Health check endpoint
@@ -369,16 +561,22 @@ class StitchWebHandler(BaseHTTPRequestHandler):
         # 2. Design state endpoint (GET)
         if path in ("/api/design/state", "/api/state"):
             state = load_design_state()
+            layers = state.get("elements") if isinstance(state.get("elements"), list) else state.get("layers", [])
+            canvas_w = state.get("width", 1024)
+            canvas_h = state.get("height", 686)
+            if isinstance(state.get("canvas"), dict):
+                canvas_w = state["canvas"].get("width", canvas_w)
+                canvas_h = state["canvas"].get("height", canvas_h)
             self._send_json(
                 200,
                 {
                     "ok": True,
                     "success": True,
                     "state": state,
-                    "layers": state.get("elements", []),
+                    "layers": layers,
                     "canvas": {
-                        "width": state.get("width", 1024),
-                        "height": state.get("height", 686),
+                        "width": canvas_w,
+                        "height": canvas_h,
                     },
                 },
             )
@@ -425,8 +623,21 @@ class StitchWebHandler(BaseHTTPRequestHandler):
 
         # 1. AI natural language editing endpoint
         if path == "/api/ai_edit":
+            if "prompt" in payload and not isinstance(payload["prompt"], str):
+                self._send_json(400, {"ok": False, "error": "Prompt must be a string"})
+                return
+            if "command" in payload and not isinstance(payload["command"], str):
+                self._send_json(400, {"ok": False, "error": "Prompt must be a string"})
+                return
+            if "selectedId" in payload and not isinstance(payload["selectedId"], str):
+                self._send_json(400, {"ok": False, "error": "selectedId must be a string"})
+                return
+            if "selected_id" in payload and not isinstance(payload["selected_id"], str):
+                self._send_json(400, {"ok": False, "error": "selectedId must be a string"})
+                return
+
             prompt = payload.get("prompt") or payload.get("command") or ""
-            selected_id = payload.get("selectedId") or ""
+            selected_id = payload.get("selectedId") or payload.get("selected_id") or ""
             client_state = payload.get("state")
 
             if not isinstance(client_state, dict):
@@ -485,13 +696,15 @@ class StitchWebHandler(BaseHTTPRequestHandler):
                 self._send_json(400, {"ok": False, "error": "Failed to validate or save design state"})
                 return
 
+            layers_out = new_state.get("elements") if isinstance(new_state.get("elements"), list) else new_state.get("layers", [])
             self._send_json(
                 200,
                 {
                     "ok": True,
                     "success": True,
                     "message": "Design state saved successfully",
-                    "layers": new_state.get("elements", []),
+                    "state": new_state,
+                    "layers": layers_out,
                 },
             )
             return

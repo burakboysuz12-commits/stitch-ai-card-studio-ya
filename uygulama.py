@@ -15,6 +15,11 @@ import numpy as np
 import cv2
 from PIL import Image, ImageDraw, ImageTk
 
+try:
+    import card_layer_engine
+except ImportError:
+    card_layer_engine = None
+
 # Windows'ta bozuk IPv6 (AAAA) yönlendirmelerinin çeviri ve TTS bağlantılarını
 # 20-120 saniye bekletmesini önlemek için tüm soket bağlantılarını IPv4'e zorluyoruz.
 _orig_getaddrinfo = socket.getaddrinfo
@@ -8352,6 +8357,44 @@ render();
             part_list = ", ".join(f"#{e['id']} ({e.get('label','')})" for e in els)
             return f"Aktif tasarım katmanlarına ayrıldı{opened_note}: {rel} — Parçalar: {part_list}"
 
+        # Delegate to card_layer_engine if available
+        if card_layer_engine is not None and src_img and os.path.isfile(src_img):
+            try:
+                decomp = card_layer_engine.decompose_card(src_img)
+                if decomp and "layers" in decomp and decomp["layers"]:
+                    canvas_cfg = decomp.get("canvas", {})
+                    w = canvas_cfg.get("width", 1024)
+                    h = canvas_cfg.get("height", 686)
+                    bg_css = decomp.get("background_image") or decomp.get("background") or ""
+                    if bg_css and os.path.isfile(bg_css):
+                        bg_css = f"url('{os.path.basename(bg_css)}')"
+                    vision_els = self._assign_semantic_layer_ids(decomp.get("layers", []))
+                    out_name = (output_html or "gorsel_parcali_editor.html").strip()
+                    if not out_name.lower().endswith(".html"):
+                        out_name += ".html"
+                    out_path = self._resolve_workspace_path(out_name)
+                    title = f"Görsel Parça Editörü ({os.path.basename(src_img)})"
+                    state = self._save_active_design_state(out_path, title, w, h, bg_css, vision_els, source_image=src_img)
+                    if instructions:
+                        self._apply_natural_language_layer_edits(state, instructions)
+                        bg_css = state["background"]
+                        vision_els = state["elements"]
+                    rel, opened_note, final_els = self._write_and_sync_stitch_html(
+                        out_path, title, w, h, bg_css, vision_els, open_browser=open_browser, source_image=src_img
+                    )
+                    summary_parts = [
+                        f"#{e['id']} ({e.get('label','')}): \"{str(e.get('text') or e.get('type'))[:28]}\""
+                        for e in final_els if e.get("id")
+                    ]
+                    return (
+                        f"İnteraktif Stitch tasarım editörü oluşturuldu{opened_note}: {rel} "
+                        f"(Görsel: {os.path.basename(src_img)}, {len(final_els)} ayrıştırılmış parça: "
+                        + ", ".join(summary_parts[:10])
+                        + " — Her parçayı fareyle sürükleyebilir veya sohbette yapay zekaya söyleyerek değiştirebilirsiniz)."
+                    )
+            except Exception:
+                pass
+
         with Image.open(src_img) as im:
             raw_rgb = im.convert("RGB")
             rgb = self._deskew_and_crop_card(raw_rgb)
@@ -8593,6 +8636,20 @@ render();
         t = text.strip()
         tl = t.lower()
         applied = []
+
+        # Connect card_layer_engine natural language edits
+        if card_layer_engine is not None and hasattr(card_layer_engine, "apply_natural_language_command"):
+            try:
+                curr_layers = copy.deepcopy(state.get("elements", []))
+                updated_layers, engine_summary = card_layer_engine.apply_natural_language_command(text, curr_layers)
+                if updated_layers != curr_layers or any(kw in engine_summary for kw in ("başarıyla", "ortalandı", "yaslandı", "kaydırıldı", "büyütüldü", "küçültüldü", "güncellendi")):
+                    state["elements"] = updated_layers
+                    if "layers" in state:
+                        state["layers"] = updated_layers
+                    applied.append(engine_summary)
+                    return applied
+            except Exception:
+                pass
 
         # 1) Arka plan rengi değişimi
         bg_m = re.search(r"arka\s*plan[ıi]?\s+([a-zA-ZçğıöşüÇĞİÖŞÜ0-9#\s]{3,22}?)\s*(?:rengi\s*)?(?:yap|olsun|çevir|değiştir)", tl)
