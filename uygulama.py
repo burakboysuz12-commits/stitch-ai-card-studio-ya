@@ -3490,17 +3490,19 @@ class LocalAIAssistantModule(BaseModuleView):
             if not mid:
                 continue
             if is_gemini:
-                if "gemini" in mid.lower() and mid not in seen:
-                    seen.add(mid)
-                    chat_ids.append(mid)
+                clean_mid = mid.removeprefix("models/").strip()
+                if "gemini" in clean_mid.lower() and clean_mid not in seen:
+                    if clean_mid not in ("gemini-2.5-flash", "gemini-2.5-pro", "gemini-1.5-flash", "gemini-1.5-pro") and not any(t in clean_mid for t in ("image", "tts", "audio", "live")):
+                        seen.add(clean_mid)
+                        chat_ids.append(clean_mid)
             elif mid not in seen and cls._is_evren_chat_model(mid, item):
                 seen.add(mid)
                 chat_ids.append(mid)
         if is_gemini:
-            pref_order = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"]
+            pref_order = ["gemini-3.5-flash", "gemini-3.8-flash", "gemini-flash-latest", "gemini-3.7-flash"]
             sorted_models = [m for m in pref_order if m in seen]
             sorted_models += [m for m in chat_ids if m not in sorted_models]
-            return sorted_models or ["gemini-2.5-flash", "gemini-1.5-flash"]
+            return sorted_models or ["gemini-3.5-flash", "gemini-flash-latest"]
         preferred = [m for m in cls.EVREN_DEFAULT_MODELS if m in seen and m != "auto"]
         others = [m for m in chat_ids if m not in preferred and m != "auto"]
         ordered = preferred + others
@@ -3517,7 +3519,7 @@ class LocalAIAssistantModule(BaseModuleView):
             self.evren_base_url = saved_url.rstrip("/")
         saved_evren_model = self._get_setting("evren_model", "").strip()
         if "generativelanguage.googleapis.com" in self.evren_base_url.lower():
-            self.evren_model = saved_evren_model if (saved_evren_model and "gemini" in saved_evren_model) else "gemini-2.5-flash"
+            self.evren_model = saved_evren_model if (saved_evren_model and "gemini" in saved_evren_model) else "gemini-3.5-flash"
         elif "ssyz.org.tr" not in self.evren_base_url:
             self.evren_model = saved_evren_model or "my-custom-ai"
         elif saved_evren_model and saved_evren_model not in ("auto", "deepseek-v4-flash") and self._is_evren_chat_model(saved_evren_model):
@@ -3654,7 +3656,7 @@ class LocalAIAssistantModule(BaseModuleView):
         )
         if self.active_provider == self.PROVIDER_EVREN:
             if "generativelanguage.googleapis.com" in self.evren_base_url.lower():
-                initial_models = ["gemini-2.5-flash", "gemini-1.5-flash", "gemini-1.5-pro"]
+                initial_models = ["gemini-3.5-flash", "gemini-3.8-flash", "gemini-flash-latest"]
             elif "ssyz.org.tr" not in self.evren_base_url:
                 initial_models = ["qwen2.5-coder-32b-pro", "my-custom-ai"]
             else:
