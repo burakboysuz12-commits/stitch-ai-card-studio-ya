@@ -31,6 +31,15 @@ class TestWebServer(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.port = get_free_port()
+        # Backup active design state file to preserve working tree cleanliness
+        cls.saved_state_backup = None
+        if os.path.isfile(web_server.ACTIVE_DESIGN_STATE_PATH):
+            try:
+                with open(web_server.ACTIVE_DESIGN_STATE_PATH, "rb") as f:
+                    cls.saved_state_backup = f.read()
+            except Exception:
+                pass
+
         cls.server = web_server.ThreadingHTTPServer(("127.0.0.1", cls.port), web_server.StitchWebHandler)
         cls.thread = threading.Thread(target=cls.server.serve_forever, daemon=True)
         cls.thread.start()
@@ -45,6 +54,13 @@ class TestWebServer(unittest.TestCase):
             cls.server.server_close()
         except Exception:
             pass
+        # Restore design state file to original pristine content
+        if cls.saved_state_backup is not None:
+            try:
+                with open(web_server.ACTIVE_DESIGN_STATE_PATH, "wb") as f:
+                    f.write(cls.saved_state_backup)
+            except Exception:
+                pass
 
     def test_health_endpoint(self):
         """Verifies GET /api/health returns HTTP 200 and expected schema."""
