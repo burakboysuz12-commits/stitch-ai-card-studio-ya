@@ -5,8 +5,8 @@
     "failed": 0,
     "errors": 0,
     "skipped": 14,
-    "total_duration_seconds": 11.4865,
-    "timestamp": "2026-11-15T00:44:00Z"
+    "total_duration_seconds": 16.8858,
+    "timestamp": "2026-11-15T01:13:02Z"
   },
   "tests": [
     {
@@ -15,7 +15,7 @@
       "class": "TestFeature10InteractiveCanvasIntegration",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.00409070000750944,
+      "duration": 0.004825800016988069,
       "error": null
     },
     {
@@ -24,7 +24,7 @@
       "class": "TestFeature10InteractiveCanvasIntegration",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.0026132999919354916,
+      "duration": 0.0039370000013150275,
       "error": null
     },
     {
@@ -33,7 +33,7 @@
       "class": "TestFeature10InteractiveCanvasIntegration",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.0047870999842416495,
+      "duration": 0.5417865999916103,
       "error": null
     },
     {
@@ -42,7 +42,7 @@
       "class": "TestFeature10InteractiveCanvasIntegration",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.0023037999926600605,
+      "duration": 0.0029946000140625983,
       "error": null
     },
     {
@@ -51,7 +51,7 @@
       "class": "TestFeature10InteractiveCanvasIntegration",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.0024498999991919845,
+      "duration": 0.0031186999985948205,
       "error": null
     },
     {
@@ -60,7 +60,7 @@
       "class": "TestFeature10InteractiveCanvasIntegration",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.0020363000221550465,
+      "duration": 0.002944400010164827,
       "error": null
     },
     {
@@ -69,7 +69,7 @@
       "class": "TestFeature11TurkishNLPCommandEngine",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.0010753999813459814,
+      "duration": 0.0033989000075962394,
       "error": null
     },
     {
@@ -78,7 +78,7 @@
       "class": "TestFeature11TurkishNLPCommandEngine",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.0009980000031646341,
+      "duration": 0.002295899990713224,
       "error": null
     },
     {
@@ -87,7 +87,7 @@
       "class": "TestFeature11TurkishNLPCommandEngine",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.0015412000066135079,
+      "duration": 0.003778799989959225,
       "error": null
     },
     {
@@ -96,7 +96,7 @@
       "class": "TestFeature11TurkishNLPCommandEngine",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.0010551000013947487,
+      "duration": 0.003192600008333102,
       "error": null
     },
     {
@@ -105,7 +105,7 @@
       "class": "TestFeature11TurkishNLPCommandEngine",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.0008893999911379069,
+      "duration": 0.002498099987860769,
       "error": null
     },
     {
@@ -114,7 +114,7 @@
       "class": "TestFeature11TurkishNLPCommandEngine",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.0005504000000655651,
+      "duration": 0.0022666999720968306,
       "error": null
     },
     {
@@ -132,7 +132,7 @@
       "class": "TestFeature12E2EIntegrationHardening",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.5449578000116162,
+      "duration": 0.60439100000076,
       "error": null
     },
     {
@@ -150,7 +150,7 @@
       "class": "TestFeature12E2EIntegrationHardening",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.5155530000047293,
+      "duration": 0.5698363999836147,
       "error": null
     },
     {
@@ -159,7 +159,7 @@
       "class": "TestFeature12E2EIntegrationHardening",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.7977838999941014,
+      "duration": 0.9648502999916673,
       "error": null
     },
     {
@@ -168,7 +168,7 @@
       "class": "TestFeature12E2EIntegrationHardening",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 1.5475354999944102,
+      "duration": 1.5751228999870364,
       "error": null
     },
     {
@@ -177,7 +177,7 @@
       "class": "TestFeature1GitRepoCleanArtifacts",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.03320239999447949,
+      "duration": 0.043011600006138906,
       "error": null
     },
     {
@@ -186,7 +186,7 @@
       "class": "TestFeature1GitRepoCleanArtifacts",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.00016530000721104443,
+      "duration": 0.0002865999995265156,
       "error": null
     },
     {
@@ -195,7 +195,7 @@
       "class": "TestFeature1GitRepoCleanArtifacts",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.12728190000052564,
+      "duration": 0.15471579998848028,
       "error": null
     },
     {
@@ -204,7 +204,7 @@
       "class": "TestFeature1GitRepoCleanArtifacts",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.12918610000633635,
+      "duration": 0.16452590000699274,
       "error": null
     },
     {
@@ -213,7 +213,7 @@
       "class": "TestFeature1GitRepoCleanArtifacts",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.0454576000047382,
+      "duration": 0.04597959999227896,
       "error": null
     },
     {
@@ -222,7 +222,7 @@
       "class": "TestFeature1GitRepoCleanArtifacts",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.1367663000128232,
+      "duration": 0.16550100001040846,
       "error": null
     },
     {
@@ -231,7 +231,7 @@
       "class": "TestFeature2CloudWebServer",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.5055783000134397,
+      "duration": 0.5321365999989212,
       "error": null
     },
     {
@@ -240,7 +240,7 @@
       "class": "TestFeature2CloudWebServer",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.5149604000034742,
+      "duration": 0.5313314000086393,
       "error": null
     },
     {
@@ -249,7 +249,7 @@
       "class": "TestFeature2CloudWebServer",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.5280771000252571,
+      "duration": 0.5393704999878537,
       "error": null
     },
     {
@@ -258,7 +258,7 @@
       "class": "TestFeature2CloudWebServer",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.5152381000225432,
+      "duration": 0.5385015000065323,
       "error": null
     },
     {
@@ -267,7 +267,7 @@
       "class": "TestFeature2CloudWebServer",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.5228805000078864,
+      "duration": 0.5417413999966811,
       "error": null
     },
     {
@@ -276,7 +276,7 @@
       "class": "TestFeature2CloudWebServer",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.5137132999952883,
+      "duration": 0.5057604000030551,
       "error": null
     },
     {
@@ -285,7 +285,7 @@
       "class": "TestFeature3CloudAgentCICDPlaybook",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.00042460000258870423,
+      "duration": 0.00039339999784715474,
       "error": null
     },
     {
@@ -294,7 +294,7 @@
       "class": "TestFeature3CloudAgentCICDPlaybook",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.00010340000153519213,
+      "duration": 0.00013689999468624592,
       "error": null
     },
     {
@@ -303,7 +303,7 @@
       "class": "TestFeature3CloudAgentCICDPlaybook",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.0001464999804738909,
+      "duration": 0.0001886000100057572,
       "error": null
     },
     {
@@ -312,7 +312,7 @@
       "class": "TestFeature3CloudAgentCICDPlaybook",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 8.820000221021473e-05,
+      "duration": 0.00011739999172277749,
       "error": null
     },
     {
@@ -321,7 +321,7 @@
       "class": "TestFeature3CloudAgentCICDPlaybook",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 7.789998198859394e-05,
+      "duration": 0.0001157999795395881,
       "error": null
     },
     {
@@ -330,7 +330,7 @@
       "class": "TestFeature3CloudAgentCICDPlaybook",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 8.970001363195479e-05,
+      "duration": 0.00015509998775087297,
       "error": null
     },
     {
@@ -339,7 +339,7 @@
       "class": "TestFeature4Phase1Notification",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 4.7999987145885825e-05,
+      "duration": 9.479999425821006e-05,
       "error": null
     },
     {
@@ -348,7 +348,7 @@
       "class": "TestFeature4Phase1Notification",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.00013770000077784061,
+      "duration": 0.00015010000788606703,
       "error": null
     },
     {
@@ -357,7 +357,7 @@
       "class": "TestFeature4Phase1Notification",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.00010900001507252455,
+      "duration": 0.00014410002040676773,
       "error": null
     },
     {
@@ -366,7 +366,7 @@
       "class": "TestFeature4Phase1Notification",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 4.149999585933983e-05,
+      "duration": 4.400001489557326e-05,
       "error": null
     },
     {
@@ -375,7 +375,7 @@
       "class": "TestFeature4Phase1Notification",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 2.5399989681318402e-05,
+      "duration": 0.00035930000012740493,
       "error": null
     },
     {
@@ -384,7 +384,7 @@
       "class": "TestFeature4Phase1Notification",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 7.840001489967108e-05,
+      "duration": 0.0001920999784488231,
       "error": null
     },
     {
@@ -393,7 +393,7 @@
       "class": "TestFeature5HeadlessTestSuiteMetrics",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.5934154999849852,
+      "duration": 0.4645351000071969,
       "error": null
     },
     {
@@ -402,7 +402,7 @@
       "class": "TestFeature5HeadlessTestSuiteMetrics",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.0922083999903407,
+      "duration": 0.07085680001182482,
       "error": null
     },
     {
@@ -411,7 +411,7 @@
       "class": "TestFeature5HeadlessTestSuiteMetrics",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 2.47000134550035e-05,
+      "duration": 4.030614999996033,
       "error": null
     },
     {
@@ -420,7 +420,7 @@
       "class": "TestFeature5HeadlessTestSuiteMetrics",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.018825599981937557,
+      "duration": 0.020128300006035715,
       "error": null
     },
     {
@@ -429,7 +429,7 @@
       "class": "TestFeature5HeadlessTestSuiteMetrics",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 2.5599991204217076e-05,
+      "duration": 0.020221699989633635,
       "error": null
     },
     {
@@ -438,7 +438,7 @@
       "class": "TestFeature5HeadlessTestSuiteMetrics",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.6380056000198238,
+      "duration": 0.8977266000001691,
       "error": null
     },
     {
@@ -447,7 +447,7 @@
       "class": "TestFeature6Native1024x686Geometry",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.0002598999999463558,
+      "duration": 0.0003958000161219388,
       "error": null
     },
     {
@@ -456,7 +456,7 @@
       "class": "TestFeature6Native1024x686Geometry",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 1.300001167692244e-05,
+      "duration": 2.120001590810716e-05,
       "error": null
     },
     {
@@ -465,7 +465,7 @@
       "class": "TestFeature6Native1024x686Geometry",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 6.700021913275123e-06,
+      "duration": 0.00387000001501292,
       "error": null
     },
     {
@@ -474,7 +474,7 @@
       "class": "TestFeature6Native1024x686Geometry",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 6.299989763647318e-06,
+      "duration": 0.003946800017729402,
       "error": null
     },
     {
@@ -483,7 +483,7 @@
       "class": "TestFeature6Native1024x686Geometry",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 7.299997378140688e-06,
+      "duration": 0.0031726000015623868,
       "error": null
     },
     {
@@ -492,7 +492,7 @@
       "class": "TestFeature6Native1024x686Geometry",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 1.200000406242907e-05,
+      "duration": 0.0034750000049825758,
       "error": null
     },
     {
@@ -609,7 +609,7 @@
       "class": "TestFeature9WebServerLayerAIAPI",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.5363574999792036,
+      "duration": 0.531575500004692,
       "error": null
     },
     {
@@ -618,7 +618,7 @@
       "class": "TestFeature9WebServerLayerAIAPI",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.5145338000147603,
+      "duration": 0.5269599999883212,
       "error": null
     },
     {
@@ -627,7 +627,7 @@
       "class": "TestFeature9WebServerLayerAIAPI",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.51691090001259,
+      "duration": 0.5463651000172831,
       "error": null
     },
     {
@@ -636,7 +636,7 @@
       "class": "TestFeature9WebServerLayerAIAPI",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.509181700006593,
+      "duration": 0.5469620999938343,
       "error": null
     },
     {
@@ -645,7 +645,7 @@
       "class": "TestFeature9WebServerLayerAIAPI",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.5129152000008617,
+      "duration": 0.5465443999855779,
       "error": null
     },
     {
@@ -654,7 +654,7 @@
       "class": "TestFeature9WebServerLayerAIAPI",
       "module": "test_tier1_features",
       "status": "PASS",
-      "duration": 0.5448039000038989,
+      "duration": 0.6054169000126421,
       "error": null
     }
   ]
