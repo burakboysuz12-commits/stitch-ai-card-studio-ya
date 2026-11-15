@@ -1,0 +1,90 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging / build artifacts
+build/
+dist/
+downloads/
+eggs/
+.eggs/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.pkg
+
+# Executables & Binaries
+*.exe
+*.dll
+*.dylib
+
+# Large weights and model checkpoints (>5MB)
+*.pt
+*.pth
+*.onnx
+*.bin
+*.h5
+*.tflite
+*.safetensors
+
+# Node & Frontend Build Artifacts
+node_modules/
+**/node_modules/
+.next/
+**/.next/
+out/
+.npm
+.yarn/
+.turbo
+
+# Environment variables & secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+
+# Database runtime files
+*.db
+*.sqlite
+*.sqlite3
+
+# Agent & System Metadata
+.gemini/
+.agents/
+.system_generated/
+*.log
+
+# Unit test & coverage reports
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE & OS Files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Ephemeral output directories
+generated_pdfs/
+ai_projects/uploads/
+ai_projects/studio_outputs/

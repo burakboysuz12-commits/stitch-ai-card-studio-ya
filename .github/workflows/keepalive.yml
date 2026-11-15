@@ -1,0 +1,43 @@
+name: Render 24/7 Keep-Alive Ping
+
+on:
+  schedule:
+    # Runs every 10 minutes to prevent Render free-tier idle sleep (15 min limit)
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: 'URL to ping (defaults to RENDER_APP_URL secret or env)'
+        required: false
+        default: ''
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Ping Web Server Health Endpoint
+        env:
+          RENDER_APP_URL: ${{ secrets.RENDER_APP_URL }}
+          CUSTOM_URL: ${{ github.event.inputs.target_url }}
+        run: |
+          TARGET="${CUSTOM_URL:-$RENDER_APP_URL}"
+          if [ -z "$TARGET" ]; then
+            echo "::notice ::No RENDER_APP_URL secret configured yet. Once your Render service is created, add RENDER_APP_URL to GitHub Repository Secrets (e.g., https://stitch-ai-web.onrender.com)."
+            exit 0
+          fi
+
+          # Ensure trailing slash stripped
+          TARGET="${TARGET%/}"
+          HEALTH_URL="${TARGET}/api/health"
+
+          echo "Pinging health endpoint: ${HEALTH_URL}"
+          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "$HEALTH_URL" || true)
+
+          echo "HTTP response status code: ${STATUS_CODE}"
+          if [ "$STATUS_CODE" -eq 200 ]; then
+            echo "Keep-alive ping successful. Server is active and healthy."
+          else
+            echo "::warning ::Received non-200 HTTP code ($STATUS_CODE) from $HEALTH_URL"
+          fi

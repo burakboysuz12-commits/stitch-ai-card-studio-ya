@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kartvizit Stüdyosu — Sürükle & Bırak Editör</title>
+<style>
+:root{
+  --bg:#0d1117; --bg2:#141a23; --panel:#171e28; --panel2:#1d2632;
+  --line:#26303d; --line2:#313d4d;
+  --txt:#e8eef7; --txt2:#93a3b8; --txt3:#64748b;
+  --acc:#4c8dff; --acc2:#7aa8ff; --gold:#d4af37; --danger:#ff5f6d; --ok:#31c48d;
+  --r:12px; --sh:0 10px 30px rgba(0,0,0,.45);
+  --sans:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:var(--sans);background:radial-gradient(1200px 700px at 20% -10%,#1b2534 0%,var(--bg) 55%) fixed;color:var(--txt);overflow:hidden}
+button,input,select,textarea{font-family:inherit;font-size:13px;color:inherit}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#2b3644;border-radius:8px}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ---------- Layout ---------- */
+.app{display:grid;grid-template-rows:56px 1fr;height:100vh}
+.topbar{display:flex;align-items:center;gap:10px;padding:0 14px;background:linear-gradient(180deg,#161d27,#121821);border-bottom:1px solid var(--line);box-shadow:0 1px 0 rgba(255,255,255,.03) inset}
+.brand{display:flex;align-items:center;gap:9px;font-weight:700;letter-spacing:.3px;white-space:nowrap}
+.brand .dot{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--gold),#8a6d16);display:grid;place-items:center;color:#1a1405;font-weight:800;font-size:13px;box-shadow:0 4px 14px rgba(212,175,55,.35)}
+.brand small{display:block;font-weight:500;font-size:10.5px;color:var(--txt3);letter-spacing:1.4px;text-transform:uppercase}
+.spacer{flex:1}
+.seg{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg button{background:none;border:0;padding:8px 14px;color:var(--txt2);cursor:pointer;font-weight:600;transition:.15s}
+.seg button:hover{color:var(--txt);background:#20293655}
+.seg button.on{background:linear-gradient(180deg,#2b3purpose,#232f3e)}
+.seg button.on{background:linear-gradient(180deg,#2c3a4c,#22303f);color:#fff;box-shadow:inset 0 -2px 0 var(--acc)}
+.btn{display:inline-flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--line2);color:var(--txt);padding:8px 13px;border-radius:10px;cursor:pointer;font-weight:600;transition:.16s;white-space:nowrap}
+.btn:hover{background:#243040;transform:translateY(-1px);border-color:#3d4c60}
+.btn:active{transform:translateY(0)}
+.btn.pri{background:linear-gradient(180deg,#4c8dff,#2f6fe0);border-color:#5c96ff;box-shadow:0 6px 18px rgba(76,141,255,.28)}
+.btn.pri:hover{background:linear-gradient(180deg,#5f9bff,#3a7af0)}
+.btn.gold{background:linear-gradient(180deg,#e2c05a,#b8912a);border-color:#e8cd7c;color:#231a03;box-shadow:0 6px 18px rgba(212,175,55,.28)}
+.btn.gho{background:transparent}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.zoom{display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px}
+.zoom button{width:26px;height:26px;border:0;background:none;color:var(--txt2);border-radius:7px;cursor:pointer;font-size:15px;line-height:1}
+.zoom button:hover{background:#26313f;color:#fff}
+.zoom span{min-width:46px;text-align:center;font-variant-numeric:tabular-nums;color:var(--txt2);font-weight:600;font-size:12px}
+
+.main{display:grid;grid-template-columns:236px 1fr 288px;min-height:0}
+.rail{background:linear-gradient(180deg,#141b24,#111721);border-right:1px solid var(--line);overflow-y:auto;padding:12px}
+.rail.right{border-right:0;border-left:1px solid var(--line);border-right:1px solid var(--line)}
+.rail h4{margin:14px 4px 8px;font-size:10.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--txt3);font-weight:700}
+.rail h4:first-child{margin-top:2px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:12px 8px;text-align:center;cursor:pointer;transition:.16s;user-select:none}
+.tile:hover{border-color:var(--acc);background:#1c2836;transform:translateY(-2px);box-shadow:0 8px 18px rgba(0,0,0,.3)}
+.tile .ic{font-size:19px;display:block;margin-bottom:5px;filter:saturate(.9)}
+.tile .lb{font-size:11.5px;font-weight:600;color:var(--txt2)}
+.tile:hover .lb{color:#fff}
+.tpl{display:flex;gap:9px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:8px;cursor:pointer;transition:.16s;margin-bottom:7px}
+.tpl:hover{border-color:var(--acc);transform:translateY(-1px)}
+.tpl .sw{width:44px;height:29px;border-radius:6px;flex:none;border:1px solid rgba(255,255,255,.12)}
+.tpl b{font-size:12px;display:block}
+.tpl i{font-size:10.5px;color:var(--txt3);font-style:normal}
+
+/* katman listesi */
+.ly{display:flex;align-items:center;gap:6px;padding:6px 7px;border-radius:9px;cursor:pointer;border:1px solid transparent;transition:.12s;user-select:none}
+.ly:hover{background:#1c2531}
+.ly.sel{background:linear-gradient(90deg,#1d3category,#1b2b3d);border-color:#33507a;background:linear-gradient(90deg,#1b2a3c,#182430)}
+.ly .nm{flex:1;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ly .tp{font-size:11px;width:16px;text-align:center;opacity:.8}
+.icb{width:22px;height:22px;border:0;background:none;color:var(--txt3);border-radius:6px;cursor:pointer;font-size:12px;line-height:1;flex:none}
+.icb:hover{background:#2a3644;color:#fff}
+.icb.on{color:var(--acc)}
+.icb.del:hover{color:var(--danger)}
+
+/* ---------- Sahne ---------- */
+.stageWrap{position:relative;overflow:auto;display:flex;align-items:center;justify-content:center;padding:34px;background:
+  linear-gradient(180deg,#0b0f15,#0d131b);
+  background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,.045) 1px,transparent 0);background-size:22px 22px}
+.holder{position:relative;flex:none}
+.card{position:relative;background:#fff;box-shadow:0 26px 60px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.07);transform-origin:0 0}
+.card.grid::after{content:"";position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.07) 1px,transparent 1px);background-size:10px 10px}
+.safe{position:absolute;border:1px dashed rgba(255,255,255,.16);pointer-events:none;display:none}
+.card.safeOn .safe{display:block}
+.layer{position:absolute;left:0;top:0;transform-origin:50% 50%;cursor:grab;outline:0 solid transparent;transition:outline-color .1s}
+.layer:active{cursor:grabbing}
+.layer.sel{outline:1.5px solid var(--acc)}
+.layer.lock{cursor:not-allowed}
+.layer.hid{display:none}
+.layer .txt{width:100%;white-space:pre-wrap;word-break:break-word}
+.layer img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none}
+.layer.editing{outline-color:var(--gold);cursor:text}
+.layer.editing .txt{outline:2px dashed var(--gold);outline-offset:3px;min-height:1em}
+.hd{position:absolute;width:9px;height:9px;background:#fff;border:1.5px solid var(--acc);border-radius:2px;z-index:5;display:none}
+.layer.sel .hd{display:block}
+.hd.nw{left:-5px;top:-5px;cursor:nwse-resize}.hd.ne{right:-5px;top:-5px;cursor:nesw-resize}
+.hd.sw{left:-5px;bottom:-5px;cursor:nesw-resize}.hd.se{right:-5px;bottom:-5px;cursor:nwse-resize}
+.hd.n{left:50%;top:-5px;margin-left:-4.5px;cursor:ns-resize}.hd.s{left:50%;bottom:-5px;margin-left:-4.5px;cursor:ns-resize}
+.hd.w{left:-5px;top:50%;margin-top:-4.5px;cursor:ew-resize}.hd.e{right:-5px;top:50%;margin-top:-4.5px;cursor:ew-resize}
+.rt{position:absolute;left:50%;top:-30px;margin-left:-6px;width:12px;height:12px;border-radius:50%;background:var(--acc);border:2px solid #fff;cursor:grab;display:none;z-index:6}
+.layer.sel .rt{display:block}
+.layer.lock .hd,.layer.lock .rt{display:none!important}
+.hintbar{position:absolute;left:0;right:0;bottom:0;padding:8px 14px;font-size:11.5px;color:var(--txt3);background:linear-gradient(0deg,rgba(13,19,27,.95),transparent);pointer-events:none;text-align:center}
+.hintbar kbd{background:#1e2836;border:1px solid var(--line2);border-bottom-width:2px;border-radius:5px;padding:1px 5px;font-size:10.5px;color:var(--txt2);font-family:inherit}
+
+/* ---------- Özellikler ---------- */
+.grp{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:11px;margin-bottom:10px}
+.grp>label{display:block;font-size:10.5px;letter-spacing:1.3px;text-transform:uppercase;color:var(--txt3);font-weight:700;margin-bottom:9px}
+.row{display:flex;gap:7px;align-items:center;margin-bottom:8px}
+.row:last-child{margin-bottom:0}
+.row>label{flex:none;width:52px;font-size:11.5px;color:var(--txt2)}
+input[type=text],input[type=number],select,textarea{width:100%;background:#0f151d;border:1px solid var(--line2);border-radius:8px;padding:7px 9px;outline:none;transition:.15s}
+input:focus,select:focus,textarea:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(76,141,255,.15)}
+input[type=number]{-moz-appearance:textfield}
+input[type=color]{width:34px;height:30px;padding:0;border:1px solid var(--line2);border-radius:8px;background:#0f151d;cursor:pointer;flex:none}
+input[type=range]{flex:1;accent-color:var(--acc);height:20px}
+.mini{font-size:11px;color:var(--txt3);width:38px;text-align:right;font-variant-numeric:tabular-nums}
+.chips{display:flex;gap:5px;flex-wrap:wrap}
+.chip{flex:1;min-width:38px;background:#0f151d;border:1px solid var(--line2);border-radius:8px;padding:6px 0;text-align:center;cursor:pointer;font-size:12px;color:var(--txt2);transition:.14s}
+.chip:hover{border-color:#455a72;color:#fff}
+.chip.on{background:linear-gradient(180deg,#2b3f5b,#22334a);border-color:var(--acc);color:#fff}
+.swatches{display:flex;gap:6px;flex-wrap:wrap}
+.sw2{width:22px;height:22px;border-radius:6px;border:1.5px solid rgba(255,255,255,.15);cursor:pointer;transition:.14s}
+.sw2:hover{transform:scale(1.14);border-color:#fff}
+.empty{color:var(--txt3);font-size:12.5px;text-align:center;padding:26px 10px;line-height:1.7}
+.tgl{display:flex;align-items:center;justify-content:space-between;padding:6px 0;font-size:12.5px;color:var(--txt2)}
+.sw-t{position:relative;width:36px;height:20px;background:#2a3543;border-radius:20px;cursor:pointer;transition:.18s;flex:none}
+.sw-t::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#8ea3bd;transition:.18s}
+.sw-t.on{background:var(--acc)}.sw-t.on::after{left:18px;background:#fff}
+.danger-zone{display:flex;gap:7px}
+.danger-zone .btn{flex:1;justify-content:center}
+.btn.rm{border-color:#4a2731;color:#ff8f98}
+.btn.rm:hover{background:#3a1d24;border-color:var(--danger)}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);background:#1b2532;border:1px solid var(--line2);color:#fff;padding:11px 18px;border-radius:11px;box-shadow:var(--sh);opacity:0;pointer-events:none;transition:.25s;z-index:99;font-size:13px;font-weight:600}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast.ok{border-color:var(--ok)} .toast.err{border-color:var(--danger)}
+@media(max-width:1180px){.main{grid-template-columns:200px 1fr 250px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ÜST BAR -->
+  <div class="topbar">
+    <div class="brand"><div class="dot">KV</div><div>Kartvizit Stüdyosu<small>Sürükle · Değiştir · Sil</small></div></div>
+    <div class="seg" id="sideSeg">
+      <button data-side="front" class="on">Ön Yüz</button>
+      <button data-side="back">Arka Yüz</button>
+    </div>
+    <div class="zoom">
+      <button id="zOut" title="Uzaklaş">−</button><span id="zVal">100%</span><button id="zIn" title="Yakınlaş">+</button>
+      <button id="zFit" title="Sığdır" style="width:auto;padding:0 8px;font-size:11px;font-weight:700">SIĞDIR</button>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn gho" id="undoBtn" title="Geri Al (Ctrl+Z)">↶ Geri</button>
+    <button class="btn gho" id="redoBtn" title="İleri Al (Ctrl+Y)">↷ İleri</button>
+    <button class="btn" id="saveBtn" title="Tasarımı tarayıcıya kaydet">💾 Kaydet</button>
+    <button class="btn" id="loadBtn" title="JSON dosyası yükle">📂 Aç</button>
+    <button class="btn gold" id="dlBtn">⬇ PNG İndir</button>
+    <a class="btn" href="/" style="text-decoration:none">← Görev Defteri</a>
+  </div>
+
+  <div class="main">
+    <!-- SOL RAY -->
+    <aside class="rail">
+      <h4>Eleman Ekle</h4>
+      <div class="tiles">
+        <div class="tile" data-add="text"><span class="ic">🅣</span><span class="lb">Metin</span></div>
+        <div class="tile" data-add="heading"><span class="ic">🇦</span><span class="lb">Büyük Başlık</span></div>
+        <div class="tile" data-add="rect"><span class="ic">▭</span><span class="lb">Şerit / Kutu</span></div>
+        <div class="tile" data-add="line"><span class="ic">―</span><span class="lb">Çizgi</span></div>
+        <div class="tile" data-add="ellipse"><span class="ic">◯</span><span class="lb">Daire</span></div>
+        <div class="tile" data-add="hex"><span class="ic">⬡</span><span class="lb">Altıgen</span></div>
+        <div class="tile" data-add="frame"><span class="ic">🖼</span><span class="lb">Çerçeve</span></div>
+        <div class="tile" data-add="image"><span class="ic">🖼️</span><span class="lb">Fotoğraf</span></div>
+      </div>
+
+      <h4>Şablonlar</h4>
+      <div id="tplList"></div>
+
+      <h4>Katmanlar</h4>
+      <div id="layerList"></div>
+    </aside>
+
+    <!-- SAHNE -->
+    <section class="stageWrap" id="stageWrap">
+      <div class="holder" id="holder">
+        <div class="card" id="card">
+          <div class="safe" id="safe"></div>
+        </div>
+      </div>
+      <div class="hintbar">Sürükle: taşı · Köşeler: boyutlandır · Üstteki nokta: döndür · <b>Çift tıkla</b>: metni düzenle · <kbd>Del</kbd> sil · <kbd>Ctrl+D</kbd> çoğalt · <kbd>Ok tuşları</kbd> 1px (Shift 10px)</div>
+    </section>
+
+    <!-- SAĞ RAY -->
+    <aside class="rail right">
+      <div id="noSel" class="empty">Bir eleman seç ya da soldan ekle.<br><span style="opacity:.6">Her parça serbestçe taşınır, yeniden boyutlanır, döndürülür ve silinir.</span></div>
+
+      <div id="props" style="display:none">
+        <div class="grp" id="gText">
+          <label>Metin</label>
+          <div class="row"><textarea id="pText" rows="2" placeholder="Metin..."></textarea></div>
+          <div class="row"><select id="pFont"></select></div>
+          <div class="row">
+            <label>Boyut</label><input type="range" id="pSizeR" min="6" max="160" step="1"><input type="number" id="pSize" min="4" max="300" style="width:58px">
+          </div>
+          <div class="row"><label>Kalınlık</label>
+            <div class="chips" id="pWeight">
+              <div class="chip" data-v="300">İnce</div><div class="chip" data-v="400">Normal</div>
+              <div class="chip" data-v="600">Yarı</div><div class="chip" data-v="700">Kalın</div><div class="chip" data-v="800">Süper</div>
+            </div>
+          </div>
+          <div class="row"><label>Hizala</label>
+            <div class="chips" id="pAlign">
+              <div class="chip" data-v="left">◧</div><div class="chip" data-v="center">◫</div><div class="chip" data-v="right">◨</div>
+            </div>
+          </div>
+          <div class="row"><label>Harf</label><input type="range" id="pTrack" min="-3" max="30" step="0.5"><span class="mini" id="pTrackV">0</span></div>
+          <div class="row"><label>Satır</label><input type="range" id="pLead" min="0.8" max="2.4" step="0.05"><span class="mini" id="pLeadV">1.2</span></div>
+          <div class="tgl">Büyük harf <div class="sw-t" id="pUpper"></div></div>
+          <div class="tgl">Gölge <div class="sw-t" id="pShadow"></div></div>
+        </div>
+
+        <div class="grp" id="gShape">
+          <label>Dolgu &amp; Kenar</label>
+          <div class="row"><label>Dolgu</label><input type="color" id="pFillC"><input type="text" id="pFill" placeholder="yok / #hex / rgba()"></div>
+          <div class="row"><label>Kenar</label><input type="color" id="pStrokeC"><input type="number" id="pStrokeW" min="0" max="40" step="0.5" style="width:62px"><input type="color" id="pNone" style="display:none"></div>
+          <div class="row"><label>Köşe</label><input type="range" id="pRadius" min="0" max="200" step="1"><span class="mini" id="pRadiusV">0</span></div>
+        </div>
+
+        <div class="grp">
+          <label>Renk Hızlı</label>
+          <div class="swatches" id="quickColors"></div>
+        </div>
+
+        <div class="grp">
+          <label>Konum &amp; Dönüşüm</label>
+          <div class="row"><label>X</label><input type="number" id="pX"><label style="width:22px">Y</label><input type="number" id="pY"></div>
+          <div class="row"><label>Gen.</label><input type="number" id="pW"><label style="width:34px">Yük.</label><input type="number" id="pH"></div>
+          <div class="row"><label>Döndür</label><input type="range" id="pRot" min="-180" max="180" step="1"><span class="mini" id="pRotV">0°</span></div>
+          <div class="row"><label>Saydamlık</label><input type="range" id="pOpa" min="0" max="1" step="0.01"><span class="mini" id="pOpaV">100%</span></div>
+          <div class="row" style="margin-top:10px">
+            <button class="btn" id="pFront" title="Öne getir">⬆ Öne</button>
+            <button class="btn" id="pBack" title="Arkaya gönder">⬇ Arkaya</button>
+            <button class="btn" id="pCenter" title="Yatay ortala">⇹</button>
+          </div>
+        </div>
+
+        <div class="grp">
+          <label>Kilitle / Gizle</label>
+          <div class="tgl">Kilitli <div class="sw-t" id="pLock"></div></div>
+          <div class="tgl">Görünür <div class="sw-t on" id="pHide"></div></div>
+        </div>
+
+        <div class="danger-zone">
+          <button class="btn" id="pDup">⧉ Çoğalt</button>
+          <button class="btn rm" id="pDel">🗑 Sil</button>
+        </div>
+      </div>
+
+      <div class="grp" style="margin-top:14px">
+        <label>Zemin (Bu Yüz)</label>
+        <div class="row"><label>Tip</label>
+          <div class="chips" id="bgType"><div class="chip" data-v="solid">Düz</div><div class="chip" data-v="gradient">Degrade</div></div>
+        </div>
+        <div class="row"><label>Renk 1</label><input type="color" id="bgC1"><input type="text" id="bgC1t"></div>
+        <div class="row" id="bgRow2"><label>Renk 2</label><input type="color" id="bgC2"><input type="text" id="bgC2t"></div>
+        <div class="row" id="bgRowA"><label>Açı</label><input type="range" id="bgAng" min="0" max="360" step="1"><span class="mini" id="bgAngV">135°</span></div>
+        <div class="tgl">Izgara <div class="sw-t" id="tGrid"></div></div>
+        <div class="tgl">10px ızgaraya yapış <div class="sw-t on" id="tSnap"></div></div>
+        <div class="tgl">Taşma payı rehberi <div class="sw-t" id="tSafe"></div></div>
+      </div>
+
+      <div class="grp">
+        <label>Kart Boyutu</label>
+        <div class="row"><select id="sizeSel">
+          <option value="1004x650">85 × 55 mm — Standart (300dpi)</option>
+          <option value="1063x602">90 × 51 mm — Avrupa</option>
+          <option value="1050x600">88.9 × 50.8 mm — US</option>
+          <option value="1004x1004">Kare (Instagram)</option>
+        </select></div>
+        <div class="row" style="margin-top:8px"><button class="btn" id="dlFront" style="flex:1;justify-content:center">Ön PNG</button><button class="btn" id="dlBack" style="flex:1;justify-content:center">Arka PNG</button></div>
+        <div class="row"><button class="btn pri" id="dlBoth" style="flex:1;justify-content:center">⬇ Her İki Yüz (Baskı)</button></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<input type="file" id="fileImg" accept="image/*" hidden>
+<input type="file" id="fileJson" accept="application/json,.json" hidden>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =====================================================================
+   KARTVİZİT STÜDYOSU — katman tabanlı, sürükle-bırak editör
+   Harici kütüphane yok. DOM ile düzenleme, Canvas ile baskı PNG üretimi.
+   ===================================================================== */
+const CARD = {w:1004, h:650};
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const uid = () => Math.random().toString(36).slice(2,9);
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+const FONTS = [
+  ["Segoe UI","Segoe UI (Modern)"], ["Georgia","Georgia (Klasik Serif)"],
+  ["Bahnschrift","Bahnschrift (Endüstriyel)"], ["Times New Roman","Times New Roman"],
+  ["Consolas","Consolas (Mono)"], ["Trebuchet MS","Trebuchet MS"],
+  ["Impact","Impact (Vurucu)"], ["Copperplate","Copperplate (Lüks)"]
+];
+const GOLD = "#d4af37";
+
+/* ---------------- Katman fabrikası ---------------- */
+function L(o){
+  return Object.assign({
+    id:uid(), type:"text", x:60, y:60, w:300, h:40, rot:0, opacity:1,
+    locked:false, hidden:false
+  }, o);
+}
+const mkText = (o={}) => L(Object.assign({
+  type:"text", text:"Metin", font:"Segoe UI", size:24, weight:400, color:"#ffffff",
+  align:"left", track:0, lead:1.25, upper:false, shadow:false, w:360, h:40
+}, o));
+const mkRect = (o={}) => L(Object.assign({
+  type:"rect", fill:GOLD, stroke:"none", strokeW:0, radius:0, w:120, h:6
+}, o));
+
+/* ---------------- Şablonlar ---------------- */
+function buildCard(p){
+  const g = p.gold, ink = p.ink, sub = p.sub, mut = p.mut;
+  const front = {
+    bg:{type:"gradient", c1:p.c1, c2:p.c2, angle:135},
+    layers:[
+      L({type:"rect", x:0, y:0, w:16, h:CARD.h, fill:g, radius:0, name:"Altın şerit"}),
+      L({type:"rect", x:36, y:36, w:CARD.w-72, h:CARD.h-72, fill:"none", stroke:g, strokeW:1, radius:6, opacity:.35, name:"Çerçeve"}),
+      L({type:"hex", x:640, y:120, w:430, h:470, fill:"none", stroke:g, strokeW:2, opacity:.07, name:"Filigran"}),
+      L({type:"hex", x:72, y:76, w:104, h:116, fill:"rgba(212,175,55,.10)", stroke:g, strokeW:2, name:"Monogram rozet"}),
+      mkText({x:72, y:104, w:104, h:60, text:p.mono, font:p.monoFont||"Georgia", size:44, weight:700, color:g, align:"center", track:1, name:"Monogram"}),
+      mkText({x:200, y:104, w:420, h:34, text:p.tagline, size:13, weight:600, color:mut, track:5, upper:true, name:"Etiket"}),
+      mkText({x:200, y:132, w:470, h:44, text:p.company, size:30, weight:300, color:ink, track:6, upper:true, name:"Firma Adı"}),
+      mkText({x:72, y:250, w:640, h:66, text:"Ad Soyad", font:p.nameFont||"Segoe UI", size:56, weight:300, color:ink, track:5, name:"Ad Soyad"}),
+      mkText({x:74, y:326, w:560, h:26, text:"Kurucu & Genel Müdür", size:17, weight:600, color:g, track:4.5, upper:true, name:"Ünvan"}),
+      L({type:"rect", x:74, y:372, w:92, h:3, fill:g, name:"Ayraç"}),
+      mkText({x:74, y:402, w:520, h:24, text:"0555 555 55 55", size:18, weight:500, color:sub, track:.6, name:"Telefon"}),
+      mkText({x:74, y:436, w:520, h:24, text:"info@firmaadi.com", size:18, weight:500, color:sub, track:.6, name:"E-posta"}),
+      mkText({x:74, y:470, w:520, h:24, text:"www.firmaadi.com", size:18, weight:500, color:sub, track:.6, name:"Web"}),
+      mkText({x:74, y:504, w:520, h:24, text:"Mahalle · Cadde No:0, İlçe / İl", size:16, weight:400, color:mut, track:.4, name:"Adres"}),
+      L({type:"rect", x:CARD.w-72-236, y:CARD.h-72-48, w:236, h:48, fill:"none", stroke:g, strokeW:1, radius:24, opacity:.75, name:"Rozet çerçevesi"}),
+      mkText({x:CARD.w-72-236, y:CARD.h-72-38, w:236, h:26, text:"EST. 2015", size:13, weight:700, color:g, align:"center", track:4, upper:true, name:"Rozet metni"})
+    ]
+  };
+  const back = {
+    bg:{type:"gradient", c1:p.c2, c2:p.c1, angle:45},
+    layers:[
+      L({type:"rect", x:36, y:36, w:CARD.w-72, h:CARD.h-72, fill:"none", stroke:g, strokeW:1, radius:6, opacity:.3, name:"Çerçeve"}),
+      L({type:"hex", x:CARD.w/2-84, y:150, w:168, h:188, fill:"rgba(212,175,55,.08)", stroke:g, strokeW:2, name:"Büyük altıgen"}),
+      mkText({x:CARD.w/2-84, y:206, w:168, h:76, text:p.mono, font:p.monoFont||"Georgia", size:60, weight:700, color:g, align:"center", track:2, name:"Monogram"}),
+      mkText({x:100, y:372, w:CARD.w-200, h:44, text:p.company, size:32, weight:300, color:ink, align:"center", track:9, upper:true, name:"Firma Adı"}),
+      L({type:"rect", x:CARD.w/2-46, y:430, w:92, h:3, fill:g, name:"Ayraç"}),
+      mkText({x:100, y:452, w:CARD.w-200, h:24, text:"Güven · Kalite · Deneyim", size:14, weight:600, color:g, align:"center", track:5, upper:true, name:"Slogan"}),
+      mkText({x:100, y:CARD.h-96, w:CARD.w-200, h:22, text:"www.firmaadi.com", size:14, weight:500, color:mut, align:"center", track:3, name:"Web"})
+    ]
+  };
+  return {front, back};
+}
+const TPLS = [
+  {id:"gece", name:"Gece Altını", note:"Lüks · kurumsal", sw:"linear-gradient(135deg,#0a1020,#16203a)",
+   data:()=>buildCard({c1:"#070c18",c2:"#141d31",gold:GOLD,ink:"#f4f7fc",sub:"#c6d1e2",mut:"#8fa0bd",mono:"AS",company:"Firma Adı",tagline:"Mimarlık & İç Mimarlık"})},
+  {id:"fildisi", name:"Fildişi Minimal", note:"Temiz · modern", sw:"linear-gradient(135deg,#f7f5f0,#e6e1d6)",
+   data:()=>{const c=buildCard({c1:"#faf8f4",c2:"#ece7dc",gold:"#9a7b2f",ink:"#1b1b1b",sub:"#4a4a4a",mut:"#7d7d7d",mono:"AS",company:"Firma Adı",tagline:"Mimarlık & İç Mimarlık"});
+     c.front.layers[0].fill="#9a7b2f"; return c;}},
+  {id:"zumrut", name:"Zümrüt", note:"Prestij · doğa", sw:"linear-gradient(135deg,#052e26,#0b5c48)",
+   data:()=>buildCard({c1:"#04231d",c2:"#0a5343",gold:"#d9c27a",ink:"#f2fbf7",sub:"#bfe4d7",mut:"#87b3a5",mono:"AS",company:"Firma Adı",tagline:"Mimarlık & İç Mimarlık"})},
+  {id:"geceK", name:"Antrasit · Kırmızı", note:"Cesur · atölye", sw:"linear-gradient(135deg,#111,#2b2b2b)",
+   data:()=>buildCard({c1:"#0e0e10",c2:"#242428",gold:"#e0453f",ink:"#ffffff",sub:"#d6d6da",mut:"#9a9aa2",mono:"AS",company:"Firma Adı",tagline:"Mimarlık & İç Mimarlık"})},
+  {id:"kare", name:"Kare · Sosyal", note:"Instagram kapağı", sw:"linear-gradient(135deg,#1a1030,#3a1f5c)", square:true,
+   data:()=>{CARD.w=1004;CARD.h=1004;const c=buildCard({c1:"#150c28",c2:"#3b2160",gold:"#e9c46a",ink:"#fff",sub:"#d8cdef",mut:"#a996cc",mono:"AS",company:"Firma Adı",tagline:"Sosyal Medya"});
+     c.front.layers.forEach(l=>{if(l.y>520)l.y+=330}); c.back.layers.forEach(l=>{if(l.y>430)l.y+=300}); return c;}}
+];
+
+/* ---------------- Durum ---------------- */
+let state = TPLS[0].data();
+let side = "front";
+let selId = null;
+let zoom = 1;
+let snap = true, showGrid = false, showSafe = false;
+let undoStack = [], redoStack = [];
+
+const card = $("#card"), holder = $("#holder");
+const S = () => state[side];
+const sel = () => S().layers.find(l => l.id === selId) || null;
+
+/* ---------------- Geçmiş (undo/redo) ---------------- */
+function snapState(){ undoStack.push(JSON.stringify(state)); if(undoStack.length>60) undoStack.shift(); redoStack.length=0; }
+function undo(){ if(!undoStack.length) return; redoStack.push(JSON.stringify(state)); state = JSON.parse(undoStack.pop()); selId=null; renderAll(); toast("Geri alındı"); }
+function redo(){ if(!redoStack.length) return; undoStack.push(JSON.stringify(state)); state = JSON.parse(redoStack.pop()); selId=null; renderAll(); toast("İleri alındı"); }
+
+/* ---------------- Bildirim ---------------- */
+let tT;
+function toast(msg, kind){ const t=$("#toast"); t.textContent=msg; t.className="toast on "+(kind||""); clearTimeout(tT); tT=setTimeout(()=>t.className="toast",1700); }
+
+/* =====================================================================
+   RENDER (DOM)
+   ===================================================================== */
+function applyBg(){
+  const b = S().bg;
+  card.style.background = b.type==="gradient"
+    ? `linear-gradient(${b.angle}deg, ${b.c1}, ${b.c2})`
+    : b.c1;
+}
+function layerStyle(l){
+  const st = {
+    width: l.w+"px", height: (l.type==="text"?"auto":l.h+"px"),
+    transform: `translate(${l.x}px,${l.y}px) rotate(${l.rot||0}deg)`,
+    opacity: l.opacity
+  };
+  return st;
+}
+function buildLayerEl(l){
+  const el = document.createElement("div");
+  el.className = "layer" + (l.id===selId?" sel":"") + (l.locked?" lock":"") + (l.hidden?" hid":"");
+  el.dataset.id = l.id;
+  Object.assign(el.style, layerStyle(l));
+
+  if(l.type==="text"){
+    const t = document.createElement("div");
+    t.className="txt";
+    Object.assign(t.style,{
+      fontFamily:`"${l.font}", sans-serif`, fontSize:l.size+"px", fontWeight:l.weight,
+      color:l.color, textAlign:l.align, letterSpacing:(l.track||0)+"px",
+      lineHeight:l.lead||1.25, textTransform:l.upper?"uppercase":"none",
+      textShadow: l.shadow? "0 2px 10px rgba(0,0,0,.55)":"none"
+    });
+    t.textContent = l.text;
+    el.appendChild(t);
+  } else if(l.type==="image"){
+    const im = document.createElement("img");
+    im.src = l.src; im.style.borderRadius = (l.radius||0)+"px";
+    el.appendChild(im);
+  } else {
+    const sh = document.createElement("div");
+    Object.assign(sh.style,{
+      width:"100%", height:(l.type==="line"?Math.max(2,l.h):l.h)+"px",
+      background: (l.fill && l.fill!=="none") ? l.fill : "transparent",
+      border: (l.stroke && l.stroke!=="none" && l.strokeW>0) ? `${l.strokeW}px solid ${l.stroke}` : "none",
+      borderRadius: l.type==="ellipse" ? "50%" : (l.radius||0)+"px"
+    });
+    if(l.type==="hex"){
+      sh.style.clipPath = "polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)";
+      sh.style.borderRadius = "0";
+    }
+    el.appendChild(sh);
+  }
+  // tutamaçlar
+  ["nw","n","ne","e","se","s","sw","w"].forEach(p=>{
+    const h=document.createElement("div"); h.className="hd "+p; h.dataset.h=p; el.appendChild(h);
+  });
+  const r=document.createElement("div"); r.className="rt"; r.dataset.h="rot"; el.appendChild(r);
+  return el;
+}
+function renderCard(){
+  card.style.width = CARD.w+"px"; card.style.height = CARD.h+"px";
+  card.classList.toggle("grid", showGrid);
+  card.classList.toggle("safeOn", showSafe);
+  const safe = $("#safe");
+  const m = Math.round(CARD.w*0.055);
+  Object.assign(safe.style,{left:m+"px",top:m+"px",right:m+"px",bottom:m+"px"});
+  card.querySelectorAll(".layer").forEach(e=>e.remove());
+  S().layers.forEach(l => card.appendChild(buildLayerEl(l)));
+  applyBg();
+  applyZoom();
+}
+function applyZoom(){
+  card.style.transform = `scale(${zoom})`;
+  holder.style.width = (CARD.w*zoom)+"px";
+  holder.style.height = (CARD.h*zoom)+"px";
+  $("#zVal").textContent = Math.round(zoom*100)+"%";
+}
+function fitZoom(){
+  const w = $("#stageWrap");
+  const z = Math.min((w.clientWidth-90)/CARD.w, (w.clientHeight-110)/CARD.h);
+  zoom = clamp(z, .15, 3); applyZoom();
+}
+function renderLayers(){
+  const box = $("#layerList"); box.innerHTML="";
+  [...S().layers].reverse().forEach(l=>{
+    const d = document.createElement("div");
+    d.className = "ly"+(l.id===selId?" sel":"");
+    const icon = {text:"🅣",rect:"▭",line:"―",ellipse:"◯",hex:"⬡",image:"🖼️",frame:"▭"}[l.type]||"◇";
+    const nm = l.type==="text" ? (l.text||"Metin") : (l.name || ({rect:"Kutu",line:"Çizgi",ellipse:"Daire",hex:"Altıgen",image:"Görsel"}[l.type]||"Katman"));
+    d.innerHTML = `<span class="tp">${icon}</span><span class="nm"></span>
+      <button class="icb ${l.hidden?"":"on"}" data-a="hide" title="Gizle/Göster">${l.hidden?"🚫":"👁"}</button>
+      <button class="icb ${l.locked?"on":""}" data-a="lock" title="Kilitle">${l.locked?"🔒":"🔓"}</button>
+      <button class="icb del" data-a="del" title="Sil">✕</button>`;
+    d.querySelector(".nm").textContent = nm;
+    d.onclick = e => {
+      const a = e.target.dataset.a;
+      if(a==="del"){ snapState(); S().layers = S().layers.filter(x=>x.id!==l.id); if(selId===l.id) selId=null; renderAll(); toast("Katman silindi","ok"); return; }
+      if(a==="hide"){ snapState(); l.hidden=!l.hidden; renderAll(); return; }
+      if(a==="lock"){ l.locked=!l.locked; renderAll(); return; }
+      select(l.id);
+    };
+    box.appendChild(d);
+  });
+  if(!S().layers.length) box.innerHTML = `<div class="empty">Bu yüzde katman yok.<br>Soldan eleman ekle.</div>`;
+}
+
+/* ---------------- Özellik paneli ---------------- */
+function fillSelect(){
+  const s=$("#pFont"); if(s.options.length) return;

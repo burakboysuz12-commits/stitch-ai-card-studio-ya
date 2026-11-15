@@ -1,0 +1,78 @@
+name: CI & Cloud Autonomous Agent Verification
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Build, Lint & Smoke Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest flake8
+
+      - name: Code Syntax & Lint Checks
+        run: |
+          # Stop build if there are Python syntax errors or undefined names
+          python -m py_compile web_server.py
+          flake8 web_server.py --count --select=E9,F63,F7,F82 --show-source --statistics
+          # Exit-zero on style warnings
+          flake8 web_server.py --count --exit-zero --max-complexity=15 --max-line-length=127 --statistics
+
+      - name: Start Web Server in Background
+        env:
+          PORT: 8080
+        run: |
+          python web_server.py &
+          SERVER_PID=$!
+          echo "SERVER_PID=$SERVER_PID" >> $GITHUB_ENV
+          # Poll until server responds or timeout (15s)
+          for i in {1..15}; do
+            if curl -s http://127.0.0.1:8080/api/health | grep -q '"ok": true'; then
+              echo "Web server is up and healthy."
+              break
+            fi
+            echo "Waiting for server startup... ($i/15)"
+            sleep 1
+          done
+
+      - name: Integration Smoke Test (Live Health & AI Edit Endpoints)
+        run: |
+          # 1. Verify /api/health
+          HEALTH_RES=$(curl -s http://127.0.0.1:8080/api/health)
+          echo "Health check response: $HEALTH_RES"
+          echo "$HEALTH_RES" | grep '"status": "healthy"'
+
+          # 2. Verify /api/ai_edit POST
+          AI_RES=$(curl -s -X POST http://127.0.0.1:8080/api/ai_edit \
+            -H "Content-Type: application/json" \
+            -d '{"prompt": "telefonu 0532 111 22 33 yap"}')
+          echo "AI Edit response: $AI_RES"
+          echo "$AI_RES" | grep '"ok": true'
+
+          # 3. Verify /api/design/state GET
+          STATE_RES=$(curl -s http://127.0.0.1:8080/api/design/state)
+          echo "State response: $STATE_RES"
+          echo "$STATE_RES" | grep '"success": true'
+
+      - name: Execute Pytest Suite
+        run: |
+          pytest tests/ -v --tb=short

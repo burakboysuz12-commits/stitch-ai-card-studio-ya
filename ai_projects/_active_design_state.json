@@ -1,0 +1,13 @@
+{
+  "title": "Test Card",
+  "width": 1024,
+  "height": 686,
+  "background": "#112233",
+  "elements": [
+    {
+      "id": "test_layer",
+      "text": "Hello"
+    }
+  ],
+  "updated_at": 1794701655.6877322
+}

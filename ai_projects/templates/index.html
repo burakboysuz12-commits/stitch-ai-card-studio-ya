@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Görev Defteri</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./static/style.css?v=3" />
+</head>
+<body>
+  <main class="app">
+    <header class="app-header">
+      <h1><span class="logo">✓</span> Görev Defteri</h1>
+      <p class="subtitle" id="dateLine"></p>
+    </header>
+
+    <!-- İlerleme -->
+    <section class="progress-card">
+      <div class="progress-info">
+        <span id="progressText">0 / 0 görev tamamlandı</span>
+        <span id="progressPercent">%0</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </section>
+
+    <!-- Yeni görev formu -->
+    <section class="task-form-card">
+      <form id="taskForm" autocomplete="off">
+        <div class="form-row">
+          <input type="text" id="taskInput" maxlength="200" placeholder="Ne yapman gerekiyor?" />
+          <button type="submit" class="add-btn" id="submitBtn">Ekle</button>
+        </div>
+
+        <!-- Açıklama alanı -->
+        <div class="desc-area">
+          <button type="button" class="tool-toggle" id="descToggle">
+            <span class="chev">▸</span> 📝 Açıklama ekle
+          </button>
+          <div class="tool-panel hidden" id="descPanel">
+            <textarea id="taskDesc" maxlength="1000" rows="4"
+                      placeholder="Görevle ilgili notlar, detaylar, hatırlatmalar..."></textarea>
+            <div class="tool-meta"><span id="descCount">0 / 1000</span></div>
+          </div>
+        </div>
+
+        <!-- Görsel alanı -->
+        <div class="desc-area">
+          <button type="button" class="tool-toggle" id="imgToggle">
+            <span class="chev">▸</span> 🖼️ Görsel ekle
+          </button>
+          <div class="tool-panel hidden" id="imgPanel">
+            <label class="dropzone" id="dropzone">
+              <input type="file" id="imgInput" accept="image/png,image/jpeg,image/gif,image/webp,image/bmp,image/avif" hidden />
+              <span class="dz-icon">⬆️</span>
+              <span class="dz-text">Dosya seç <em>veya buraya sürükle</em></span>
+              <span class="dz-hint">PNG · JPG · GIF · WEBP — en fazla 8 MB</span>
+            </label>
+            <div class="img-preview hidden" id="imgPreview">
+              <img id="imgPreviewTag" alt="Önizleme" />
+              <div class="img-preview-info">
+                <span class="img-preview-name" id="imgPreviewName"></span>
+                <button type="button" class="chip-btn danger" id="imgRemove">Görseli kaldır</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- Filtreler -->
+    <nav class="filters">
+      <button class="filter-btn active" data-filter="all">Tümü</button>
+      <button class="filter-btn" data-filter="active">Aktif</button>
+      <button class="filter-btn" data-filter="completed">Tamamlanan</button>
+      <button class="clear-btn" id="clearCompleted">Tamamlananları temizle</button>
+    </nav>
+
+    <!-- Liste -->
+    <section class="task-list" id="taskList"></section>
+    <p class="empty-state" id="emptyState">Henüz görev yok. Yukarıdan ilk görevini ekle ✨</p>
+  </main>
+
+  <!-- Görsel büyütme -->
+  <div class="lightbox hidden" id="lightbox">
+    <button class="lightbox-close" id="lightboxClose">✕</button>
+    <img id="lightboxImg" alt="Görev görseli" />
+  </div>
+
+  <!-- Bildirim -->
+  <div class="toast hidden" id="toast"></div>
+
+  <script src="./static/app.js?v=3"></script>
+</body>
+</html>

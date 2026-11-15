@@ -1,0 +1,15 @@
+{
+  "id": "burakboysuz/burak-ozel-ai-sunucu",
+  "title": "burak-ozel-ai-sunucu",
+  "code_file": "kaggle_colab_train.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "dataset_sources": ["burakboysuz/train-ilk"],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}
