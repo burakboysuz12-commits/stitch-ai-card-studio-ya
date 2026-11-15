@@ -42,87 +42,144 @@ def tier(level: int):
 
 
 class EphemeralServer:
-    """Manages an isolated ThreadingHTTPServer on an OS-allocated ephemeral port."""
+    """Manages an isolated ThreadingHTTPServer on an OS-allocated ephemeral port with state sandboxing."""
 
-    def __init__(self, handler_factory=None):
+    def __init__(self, handler_factory=None, initial_state: Optional[Dict[str, Any]] = None):
         if handler_factory is None:
             import web_server
             self.handler_factory = web_server.StitchWebHandler
         else:
             self.handler_factory = handler_factory
+        self.initial_state = initial_state
         self.server = None
         self.thread = None
         self.port = 0
         self.base_url = ""
         self._temp_dir = None
         self._orig_state_env = None
+        self._orig_server_state_path = None
 
     def __enter__(self):
         from http.server import ThreadingHTTPServer
 
-        # Isolate state file to prevent test mutation of git-tracked active design state
+        # Hermetic filesystem isolation: redirect active design state away from workspace root
         self._temp_dir = tempfile.mkdtemp(prefix="ephemeral_server_state_")
         self._temp_state = os.path.join(self._temp_dir, "_active_design_state.json")
         default_state_path = os.path.join(PROJECT_ROOT, "ai_projects", "_active_design_state.json")
-        if os.path.isfile(default_state_path):
-            shutil.copy2(default_state_path, self._temp_state)
-        self._orig_state_env = os.environ.get("ACTIVE_DESIGN_STATE_PATH")
-        os.environ["ACTIVE_DESIGN_STATE_PATH"] = self._temp_state
+
         try:
-            import web_server
-            web_server.ACTIVE_DESIGN_STATE_PATH = self._temp_state
-        except Exception:
-            pass
+            if self.initial_state is not None:
+                with open(self._temp_state, "w", encoding="utf-8") as f:
+                    json.dump(self.initial_state, f, ensure_ascii=False, indent=2)
+            elif os.path.isfile(default_state_path):
+                try:
+                    with open(default_state_path, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                    if isinstance(data, dict):
+                        # Ensure canvas dimensions conform to native 1024x686
+                        if data.get("width") == 1004 and data.get("height") == 650:
+                            data["width"] = 1024
+                            data["height"] = 686
+                        with open(self._temp_state, "w", encoding="utf-8") as f:
+                            json.dump(data, f, ensure_ascii=False, indent=2)
+                    else:
+                        shutil.copy2(default_state_path, self._temp_state)
+                except Exception:
+                    shutil.copy2(default_state_path, self._temp_state)
+            else:
+                try:
+                    import web_server
+                    default_data = web_server.get_default_design_state()
+                except Exception:
+                    default_data = {
+                        "title": "Kartvizit Tasarımı",
+                        "width": 1024,
+                        "height": 686,
+                        "background": "#0f1116",
+                        "elements": [],
+                        "updated_at": time.time(),
+                    }
+                with open(self._temp_state, "w", encoding="utf-8") as f:
+                    json.dump(default_data, f, ensure_ascii=False, indent=2)
 
-        # Port 0 instructs the OS kernel to allocate an unused ephemeral port
-        self.server = ThreadingHTTPServer(("127.0.0.1", 0), self.handler_factory)
-        self.port = self.server.server_address[1]
-        self.base_url = f"http://127.0.0.1:{self.port}"
-
-        self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
-        self.thread.start()
-
-        # Health probe with 3.0s budget
-        t_deadline = time.time() + 3.0
-        healthy = False
-        while time.time() < t_deadline:
+            self._orig_state_env = os.environ.get("ACTIVE_DESIGN_STATE_PATH")
+            os.environ["ACTIVE_DESIGN_STATE_PATH"] = self._temp_state
             try:
-                with urllib.request.urlopen(f"{self.base_url}/api/health", timeout=0.5) as resp:
-                    if resp.status == 200:
-                        healthy = True
-                        break
+                import web_server
+                self._orig_server_state_path = getattr(web_server, "ACTIVE_DESIGN_STATE_PATH", None)
+                web_server.ACTIVE_DESIGN_STATE_PATH = self._temp_state
             except Exception:
-                time.sleep(0.05)
-        return self
+                pass
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+            # Port 0 instructs the OS kernel to allocate an unused ephemeral port
+            self.server = ThreadingHTTPServer(("127.0.0.1", 0), self.handler_factory)
+            self.port = self.server.server_address[1]
+            self.base_url = f"http://127.0.0.1:{self.port}"
+
+            self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
+            self.thread.start()
+
+            # Health probe with 3.0s budget
+            t_deadline = time.time() + 3.0
+            healthy = False
+            while time.time() < t_deadline:
+                try:
+                    with urllib.request.urlopen(f"{self.base_url}/api/health", timeout=0.5) as resp:
+                        if resp.status == 200:
+                            healthy = True
+                            break
+                except Exception:
+                    time.sleep(0.05)
+            return self
+        except Exception:
+            self._cleanup()
+            raise
+
+    def _cleanup(self):
         if self.server:
             try:
                 self.server.shutdown()
                 self.server.server_close()
             except Exception:
                 pass
+            self.server = None
         if self.thread and self.thread.is_alive():
             self.thread.join(timeout=2.0)
+            self.thread = None
 
-        # Restore state path configuration and cleanup temporary directory
+        # Restore state path configuration
         if self._orig_state_env is not None:
             os.environ["ACTIVE_DESIGN_STATE_PATH"] = self._orig_state_env
         else:
             os.environ.pop("ACTIVE_DESIGN_STATE_PATH", None)
+
         try:
             import web_server
-            web_server.ACTIVE_DESIGN_STATE_PATH = os.environ.get(
-                "ACTIVE_DESIGN_STATE_PATH",
-                os.path.join(PROJECT_ROOT, "ai_projects", "_active_design_state.json")
-            )
+            if self._orig_server_state_path is not None:
+                web_server.ACTIVE_DESIGN_STATE_PATH = self._orig_server_state_path
+            else:
+                web_server.ACTIVE_DESIGN_STATE_PATH = os.environ.get(
+                    "ACTIVE_DESIGN_STATE_PATH",
+                    os.path.join(PROJECT_ROOT, "ai_projects", "_active_design_state.json")
+                )
         except Exception:
             pass
+
+        # Cleanup temporary directory with Windows retry logic
         if self._temp_dir:
-            try:
-                shutil.rmtree(self._temp_dir, ignore_errors=True)
-            except Exception:
-                pass
+            gc.collect()
+            for _ in range(5):
+                try:
+                    if os.path.exists(self._temp_dir):
+                        shutil.rmtree(self._temp_dir, ignore_errors=True)
+                    break
+                except Exception:
+                    time.sleep(0.05)
+                    gc.collect()
+            self._temp_dir = None
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self._cleanup()
 
 
 @contextlib.contextmanager
@@ -226,3 +283,50 @@ def compute_ssim_simple(img1: Any, img2: Any) -> float:
 
     ssim_map = ((2 * mu1_mu2 + c1) * (2 * sigma12 + c2)) / ((mu1_sq + mu2_sq + c1) * (sigma1_sq + sigma2_sq + c2))
     return float(np.mean(ssim_map))
+
+
+def load_image_unicode_safe(path: str) -> "np.ndarray":
+    """
+    Loads an image safely on Windows even when path contains non-ASCII characters
+    (such as Turkish characters in directory names). Returns RGB numpy array.
+    """
+    import numpy as np
+    from PIL import Image
+
+    with Image.open(path) as im:
+        return np.array(im.convert("RGB"), dtype=np.uint8)
+
+
+def transform_layer_isotropic(
+    layer: Dict[str, Any],
+    src_dimensions: Tuple[int, int] = (1024, 686),
+    target_width: int = 800,
+) -> Dict[str, Any]:
+    """
+    Transforms a design state layer's coordinates isotropically to a target viewport width.
+    Preserves exact aspect ratio and relative placement without coordinate drift.
+    """
+    import copy
+
+    src_w, src_h = src_dimensions
+    scale = float(target_width) / float(src_w)
+    target_h = round(src_h * scale)
+
+    scaled = copy.deepcopy(layer)
+    scaled["x"] = round(layer["x"] * scale)
+    scaled["y"] = round(layer["y"] * scale)
+
+    w_key = "w" if "w" in layer else "width"
+    h_key = "h" if "h" in layer else "height"
+    if w_key in layer:
+        scaled[w_key] = round(layer[w_key] * scale)
+    if h_key in layer:
+        scaled[h_key] = round(layer[h_key] * scale)
+
+    if "fontSize" in layer:
+        scaled["fontSize"] = round(layer["fontSize"] * scale)
+
+    scaled["_target_dimensions"] = (target_width, target_h)
+    scaled["_scale_factor"] = scale
+    return scaled
+

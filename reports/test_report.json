@@ -1,0 +1,661 @@
+{
+  "summary": {
+    "total": 72,
+    "passed": 58,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 14,
+    "total_duration_seconds": 11.4865,
+    "timestamp": "2026-11-15T00:44:00Z"
+  },
+  "tests": [
+    {
+      "id": "test_tier1_features.TestFeature10InteractiveCanvasIntegration.test_f10_01_static_editor_serving",
+      "name": "test_f10_01_static_editor_serving",
+      "class": "TestFeature10InteractiveCanvasIntegration",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.00409070000750944,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature10InteractiveCanvasIntegration.test_f10_02_relative_api_endpoint_usage",
+      "name": "test_f10_02_relative_api_endpoint_usage",
+      "class": "TestFeature10InteractiveCanvasIntegration",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.0026132999919354916,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature10InteractiveCanvasIntegration.test_f10_03_native_canvas_aspect_ratio",
+      "name": "test_f10_03_native_canvas_aspect_ratio",
+      "class": "TestFeature10InteractiveCanvasIntegration",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.0047870999842416495,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature10InteractiveCanvasIntegration.test_f10_04_dom_layer_rendering_elements",
+      "name": "test_f10_04_dom_layer_rendering_elements",
+      "class": "TestFeature10InteractiveCanvasIntegration",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.0023037999926600605,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature10InteractiveCanvasIntegration.test_f10_05_client_state_sync_and_storage",
+      "name": "test_f10_05_client_state_sync_and_storage",
+      "class": "TestFeature10InteractiveCanvasIntegration",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.0024498999991919845,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature10InteractiveCanvasIntegration.test_f10_06_canvas_export_render",
+      "name": "test_f10_06_canvas_export_render",
+      "class": "TestFeature10InteractiveCanvasIntegration",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.0020363000221550465,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature11TurkishNLPCommandEngine.test_f11_01_turkish_resize_scale_command",
+      "name": "test_f11_01_turkish_resize_scale_command",
+      "class": "TestFeature11TurkishNLPCommandEngine",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.0010753999813459814,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature11TurkishNLPCommandEngine.test_f11_02_turkish_position_movement_command",
+      "name": "test_f11_02_turkish_position_movement_command",
+      "class": "TestFeature11TurkishNLPCommandEngine",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.0009980000031646341,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature11TurkishNLPCommandEngine.test_f11_03_turkish_text_update_command",
+      "name": "test_f11_03_turkish_text_update_command",
+      "class": "TestFeature11TurkishNLPCommandEngine",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.0015412000066135079,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature11TurkishNLPCommandEngine.test_f11_04_turkish_delete_layer_command",
+      "name": "test_f11_04_turkish_delete_layer_command",
+      "class": "TestFeature11TurkishNLPCommandEngine",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.0010551000013947487,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature11TurkishNLPCommandEngine.test_f11_05_turkish_companion_grouping_logo",
+      "name": "test_f11_05_turkish_companion_grouping_logo",
+      "class": "TestFeature11TurkishNLPCommandEngine",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.0008893999911379069,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature11TurkishNLPCommandEngine.test_f11_06_turkish_background_color_change",
+      "name": "test_f11_06_turkish_background_color_change",
+      "class": "TestFeature11TurkishNLPCommandEngine",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.0005504000000655651,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature12E2EIntegrationHardening.test_f12_01_full_decomposition_to_web_state_pipeline",
+      "name": "test_f12_01_full_decomposition_to_web_state_pipeline",
+      "class": "TestFeature12E2EIntegrationHardening",
+      "module": "test_tier1_features",
+      "status": "SKIP",
+      "duration": 0.0,
+      "reason": "card_layer_engine.py pending implementation by Milestone M3"
+    },
+    {
+      "id": "test_tier1_features.TestFeature12E2EIntegrationHardening.test_f12_02_multi_step_nlp_editing_session",
+      "name": "test_f12_02_multi_step_nlp_editing_session",
+      "class": "TestFeature12E2EIntegrationHardening",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.5449578000116162,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature12E2EIntegrationHardening.test_f12_03_end_to_end_image_recomposition_quality",
+      "name": "test_f12_03_end_to_end_image_recomposition_quality",
+      "class": "TestFeature12E2EIntegrationHardening",
+      "module": "test_tier1_features",
+      "status": "SKIP",
+      "duration": 0.0,
+      "reason": "card_layer_engine.py pending implementation by Milestone M3"
+    },
+    {
+      "id": "test_tier1_features.TestFeature12E2EIntegrationHardening.test_f12_04_editor_html_and_api_roundtrip",
+      "name": "test_f12_04_editor_html_and_api_roundtrip",
+      "class": "TestFeature12E2EIntegrationHardening",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.5155530000047293,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature12E2EIntegrationHardening.test_f12_05_headless_cli_runner_execution",
+      "name": "test_f12_05_headless_cli_runner_execution",
+      "class": "TestFeature12E2EIntegrationHardening",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.7977838999941014,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature12E2EIntegrationHardening.test_f12_06_resource_cleanup_and_stability",
+      "name": "test_f12_06_resource_cleanup_and_stability",
+      "class": "TestFeature12E2EIntegrationHardening",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 1.5475354999944102,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature1GitRepoCleanArtifacts.test_f1_01_git_repo_initialized",
+      "name": "test_f1_01_git_repo_initialized",
+      "class": "TestFeature1GitRepoCleanArtifacts",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.03320239999447949,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature1GitRepoCleanArtifacts.test_f1_02_gitignore_exists_and_valid",
+      "name": "test_f1_02_gitignore_exists_and_valid",
+      "class": "TestFeature1GitRepoCleanArtifacts",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.00016530000721104443,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature1GitRepoCleanArtifacts.test_f1_03_gitignore_excludes_node_modules_and_build",
+      "name": "test_f1_03_gitignore_excludes_node_modules_and_build",
+      "class": "TestFeature1GitRepoCleanArtifacts",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.12728190000052564,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature1GitRepoCleanArtifacts.test_f1_04_gitignore_excludes_pycache_and_binaries",
+      "name": "test_f1_04_gitignore_excludes_pycache_and_binaries",
+      "class": "TestFeature1GitRepoCleanArtifacts",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.12918610000633635,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature1GitRepoCleanArtifacts.test_f1_05_git_status_no_large_binaries_tracked",
+      "name": "test_f1_05_git_status_no_large_binaries_tracked",
+      "class": "TestFeature1GitRepoCleanArtifacts",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.0454576000047382,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature1GitRepoCleanArtifacts.test_f1_06_essential_source_files_not_ignored",
+      "name": "test_f1_06_essential_source_files_not_ignored",
+      "class": "TestFeature1GitRepoCleanArtifacts",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.1367663000128232,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature2CloudWebServer.test_f2_01_health_check_endpoint",
+      "name": "test_f2_01_health_check_endpoint",
+      "class": "TestFeature2CloudWebServer",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.5055783000134397,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature2CloudWebServer.test_f2_02_dynamic_port_binding",
+      "name": "test_f2_02_dynamic_port_binding",
+      "class": "TestFeature2CloudWebServer",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.5149604000034742,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature2CloudWebServer.test_f2_03_static_editor_serving",
+      "name": "test_f2_03_static_editor_serving",
+      "class": "TestFeature2CloudWebServer",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.5280771000252571,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature2CloudWebServer.test_f2_04_cors_and_security_headers",
+      "name": "test_f2_04_cors_and_security_headers",
+      "class": "TestFeature2CloudWebServer",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.5152381000225432,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature2CloudWebServer.test_f2_05_unknown_route_returns_404_json",
+      "name": "test_f2_05_unknown_route_returns_404_json",
+      "class": "TestFeature2CloudWebServer",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.5228805000078864,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature2CloudWebServer.test_f2_06_graceful_shutdown",
+      "name": "test_f2_06_graceful_shutdown",
+      "class": "TestFeature2CloudWebServer",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.5137132999952883,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature3CloudAgentCICDPlaybook.test_f3_01_ci_workflow_yaml_syntax_and_structure",
+      "name": "test_f3_01_ci_workflow_yaml_syntax_and_structure",
+      "class": "TestFeature3CloudAgentCICDPlaybook",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.00042460000258870423,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature3CloudAgentCICDPlaybook.test_f3_02_ci_workflow_headless_test_step",
+      "name": "test_f3_02_ci_workflow_headless_test_step",
+      "class": "TestFeature3CloudAgentCICDPlaybook",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.00010340000153519213,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature3CloudAgentCICDPlaybook.test_f3_03_agent_instructions_file_and_sections",
+      "name": "test_f3_03_agent_instructions_file_and_sections",
+      "class": "TestFeature3CloudAgentCICDPlaybook",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.0001464999804738909,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature3CloudAgentCICDPlaybook.test_f3_04_procfile_format_and_command",
+      "name": "test_f3_04_procfile_format_and_command",
+      "class": "TestFeature3CloudAgentCICDPlaybook",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 8.820000221021473e-05,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature3CloudAgentCICDPlaybook.test_f3_05_requirements_txt_reproducible_dependencies",
+      "name": "test_f3_05_requirements_txt_reproducible_dependencies",
+      "class": "TestFeature3CloudAgentCICDPlaybook",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 7.789998198859394e-05,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature3CloudAgentCICDPlaybook.test_f3_06_dockerfile_or_render_yaml_validity",
+      "name": "test_f3_06_dockerfile_or_render_yaml_validity",
+      "class": "TestFeature3CloudAgentCICDPlaybook",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 8.970001363195479e-05,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature4Phase1Notification.test_f4_01_completion_report_existence",
+      "name": "test_f4_01_completion_report_existence",
+      "class": "TestFeature4Phase1Notification",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 4.7999987145885825e-05,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature4Phase1Notification.test_f4_02_completion_report_structure_and_sections",
+      "name": "test_f4_02_completion_report_structure_and_sections",
+      "class": "TestFeature4Phase1Notification",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.00013770000077784061,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature4Phase1Notification.test_f4_03_completion_report_clear_user_guidelines",
+      "name": "test_f4_03_completion_report_clear_user_guidelines",
+      "class": "TestFeature4Phase1Notification",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.00010900001507252455,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature4Phase1Notification.test_f4_04_notification_workflow_or_script_presence",
+      "name": "test_f4_04_notification_workflow_or_script_presence",
+      "class": "TestFeature4Phase1Notification",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 4.149999585933983e-05,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature4Phase1Notification.test_f4_05_phase1_status_metadata_validity",
+      "name": "test_f4_05_phase1_status_metadata_validity",
+      "class": "TestFeature4Phase1Notification",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 2.5399989681318402e-05,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature4Phase1Notification.test_f4_06_report_reproducible_verification_commands",
+      "name": "test_f4_06_report_reproducible_verification_commands",
+      "class": "TestFeature4Phase1Notification",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 7.840001489967108e-05,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature5HeadlessTestSuiteMetrics.test_f5_01_ssim_metric_evaluation",
+      "name": "test_f5_01_ssim_metric_evaluation",
+      "class": "TestFeature5HeadlessTestSuiteMetrics",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.5934154999849852,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature5HeadlessTestSuiteMetrics.test_f5_02_dhash_metric_evaluation",
+      "name": "test_f5_02_dhash_metric_evaluation",
+      "class": "TestFeature5HeadlessTestSuiteMetrics",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.0922083999903407,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature5HeadlessTestSuiteMetrics.test_f5_03_ocr_character_accuracy_evaluation",
+      "name": "test_f5_03_ocr_character_accuracy_evaluation",
+      "class": "TestFeature5HeadlessTestSuiteMetrics",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 2.47000134550035e-05,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature5HeadlessTestSuiteMetrics.test_f5_04_background_inpainting_smoothness_metric",
+      "name": "test_f5_04_background_inpainting_smoothness_metric",
+      "class": "TestFeature5HeadlessTestSuiteMetrics",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.018825599981937557,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature5HeadlessTestSuiteMetrics.test_f5_05_icon_preservation_pixel_metric",
+      "name": "test_f5_05_icon_preservation_pixel_metric",
+      "class": "TestFeature5HeadlessTestSuiteMetrics",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 2.5599991204217076e-05,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature5HeadlessTestSuiteMetrics.test_f5_06_headless_runner_execution_and_summary",
+      "name": "test_f5_06_headless_runner_execution_and_summary",
+      "class": "TestFeature5HeadlessTestSuiteMetrics",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.6380056000198238,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature6Native1024x686Geometry.test_f6_01_reference_image_native_dimensions",
+      "name": "test_f6_01_reference_image_native_dimensions",
+      "class": "TestFeature6Native1024x686Geometry",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.0002598999999463558,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature6Native1024x686Geometry.test_f6_02_canvas_state_native_dimensions",
+      "name": "test_f6_02_canvas_state_native_dimensions",
+      "class": "TestFeature6Native1024x686Geometry",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 1.300001167692244e-05,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature6Native1024x686Geometry.test_f6_03_header_elements_center_axis_alignment",
+      "name": "test_f6_03_header_elements_center_axis_alignment",
+      "class": "TestFeature6Native1024x686Geometry",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 6.700021913275123e-06,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature6Native1024x686Geometry.test_f6_04_contact_elements_right_anchor_alignment",
+      "name": "test_f6_04_contact_elements_right_anchor_alignment",
+      "class": "TestFeature6Native1024x686Geometry",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 6.299989763647318e-06,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature6Native1024x686Geometry.test_f6_05_qr_code_and_logo_boundary_preservation",
+      "name": "test_f6_05_qr_code_and_logo_boundary_preservation",
+      "class": "TestFeature6Native1024x686Geometry",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 7.299997378140688e-06,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature6Native1024x686Geometry.test_f6_06_isotropic_coordinate_scaling_transform",
+      "name": "test_f6_06_isotropic_coordinate_scaling_transform",
+      "class": "TestFeature6Native1024x686Geometry",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 1.200000406242907e-05,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature7SelectiveInkInpainting.test_f7_01_clean_background_generation",
+      "name": "test_f7_01_clean_background_generation",
+      "class": "TestFeature7SelectiveInkInpainting",
+      "module": "test_tier1_features",
+      "status": "SKIP",
+      "duration": 0.0,
+      "reason": "card_layer_engine.py pending implementation by Milestone M3"
+    },
+    {
+      "id": "test_tier1_features.TestFeature7SelectiveInkInpainting.test_f7_02_text_ink_removal_fidelity",
+      "name": "test_f7_02_text_ink_removal_fidelity",
+      "class": "TestFeature7SelectiveInkInpainting",
+      "module": "test_tier1_features",
+      "status": "SKIP",
+      "duration": 0.0,
+      "reason": "card_layer_engine.py pending implementation by Milestone M3"
+    },
+    {
+      "id": "test_tier1_features.TestFeature7SelectiveInkInpainting.test_f7_03_linen_texture_preservation",
+      "name": "test_f7_03_linen_texture_preservation",
+      "class": "TestFeature7SelectiveInkInpainting",
+      "module": "test_tier1_features",
+      "status": "SKIP",
+      "duration": 0.0,
+      "reason": "card_layer_engine.py pending implementation by Milestone M3"
+    },
+    {
+      "id": "test_tier1_features.TestFeature7SelectiveInkInpainting.test_f7_04_contact_icon_preservation",
+      "name": "test_f7_04_contact_icon_preservation",
+      "class": "TestFeature7SelectiveInkInpainting",
+      "module": "test_tier1_features",
+      "status": "SKIP",
+      "duration": 0.0,
+      "reason": "card_layer_engine.py pending implementation by Milestone M3"
+    },
+    {
+      "id": "test_tier1_features.TestFeature7SelectiveInkInpainting.test_f7_05_background_ssim_reference",
+      "name": "test_f7_05_background_ssim_reference",
+      "class": "TestFeature7SelectiveInkInpainting",
+      "module": "test_tier1_features",
+      "status": "SKIP",
+      "duration": 0.0,
+      "reason": "card_layer_engine.py pending implementation by Milestone M3"
+    },
+    {
+      "id": "test_tier1_features.TestFeature7SelectiveInkInpainting.test_f7_06_color_histogram_consistency",
+      "name": "test_f7_06_color_histogram_consistency",
+      "class": "TestFeature7SelectiveInkInpainting",
+      "module": "test_tier1_features",
+      "status": "SKIP",
+      "duration": 0.0,
+      "reason": "card_layer_engine.py pending implementation by Milestone M3"
+    },
+    {
+      "id": "test_tier1_features.TestFeature8NonDestructiveDecomposition.test_f8_01_layer_count_and_types",
+      "name": "test_f8_01_layer_count_and_types",
+      "class": "TestFeature8NonDestructiveDecomposition",
+      "module": "test_tier1_features",
+      "status": "SKIP",
+      "duration": 0.0,
+      "reason": "card_layer_engine.py pending implementation by Milestone M3"
+    },
+    {
+      "id": "test_tier1_features.TestFeature8NonDestructiveDecomposition.test_f8_02_transparent_png_layer_assets",
+      "name": "test_f8_02_transparent_png_layer_assets",
+      "class": "TestFeature8NonDestructiveDecomposition",
+      "module": "test_tier1_features",
+      "status": "SKIP",
+      "duration": 0.0,
+      "reason": "card_layer_engine.py pending implementation by Milestone M3"
+    },
+    {
+      "id": "test_tier1_features.TestFeature8NonDestructiveDecomposition.test_f8_03_text_layer_metadata_accuracy",
+      "name": "test_f8_03_text_layer_metadata_accuracy",
+      "class": "TestFeature8NonDestructiveDecomposition",
+      "module": "test_tier1_features",
+      "status": "SKIP",
+      "duration": 0.0,
+      "reason": "card_layer_engine.py pending implementation by Milestone M3"
+    },
+    {
+      "id": "test_tier1_features.TestFeature8NonDestructiveDecomposition.test_f8_04_layer_bounding_box_coordinates",
+      "name": "test_f8_04_layer_bounding_box_coordinates",
+      "class": "TestFeature8NonDestructiveDecomposition",
+      "module": "test_tier1_features",
+      "status": "SKIP",
+      "duration": 0.0,
+      "reason": "card_layer_engine.py pending implementation by Milestone M3"
+    },
+    {
+      "id": "test_tier1_features.TestFeature8NonDestructiveDecomposition.test_f8_05_recombination_visual_similarity",
+      "name": "test_f8_05_recombination_visual_similarity",
+      "class": "TestFeature8NonDestructiveDecomposition",
+      "module": "test_tier1_features",
+      "status": "SKIP",
+      "duration": 0.0,
+      "reason": "card_layer_engine.py pending implementation by Milestone M3"
+    },
+    {
+      "id": "test_tier1_features.TestFeature8NonDestructiveDecomposition.test_f8_06_semantic_layer_ids_and_labels",
+      "name": "test_f8_06_semantic_layer_ids_and_labels",
+      "class": "TestFeature8NonDestructiveDecomposition",
+      "module": "test_tier1_features",
+      "status": "SKIP",
+      "duration": 0.0,
+      "reason": "card_layer_engine.py pending implementation by Milestone M3"
+    },
+    {
+      "id": "test_tier1_features.TestFeature9WebServerLayerAIAPI.test_f9_01_get_design_state_contract",
+      "name": "test_f9_01_get_design_state_contract",
+      "class": "TestFeature9WebServerLayerAIAPI",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.5363574999792036,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature9WebServerLayerAIAPI.test_f9_02_post_design_state_persistence",
+      "name": "test_f9_02_post_design_state_persistence",
+      "class": "TestFeature9WebServerLayerAIAPI",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.5145338000147603,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature9WebServerLayerAIAPI.test_f9_03_post_ai_edit_command_success",
+      "name": "test_f9_03_post_ai_edit_command_success",
+      "class": "TestFeature9WebServerLayerAIAPI",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.51691090001259,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature9WebServerLayerAIAPI.test_f9_04_cors_and_json_headers",
+      "name": "test_f9_04_cors_and_json_headers",
+      "class": "TestFeature9WebServerLayerAIAPI",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.509181700006593,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature9WebServerLayerAIAPI.test_f9_05_options_preflight_handling",
+      "name": "test_f9_05_options_preflight_handling",
+      "class": "TestFeature9WebServerLayerAIAPI",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.5129152000008617,
+      "error": null
+    },
+    {
+      "id": "test_tier1_features.TestFeature9WebServerLayerAIAPI.test_f9_06_concurrent_api_requests",
+      "name": "test_f9_06_concurrent_api_requests",
+      "class": "TestFeature9WebServerLayerAIAPI",
+      "module": "test_tier1_features",
+      "status": "PASS",
+      "duration": 0.5448039000038989,
+      "error": null
+    }
+  ]
+}

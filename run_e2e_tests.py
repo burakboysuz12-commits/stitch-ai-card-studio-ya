@@ -145,18 +145,30 @@ def filter_test_suite(suite: unittest.TestSuite, target_tier: Optional[int], nam
     return filtered
 
 
-def export_json_report(result: E2ETestResult, total_time: float, output_path: str):
+def export_json_report(
+    result: E2ETestResult,
+    total_time: float,
+    output_path: str,
+    total_discovered: Optional[int] = None
+):
     """Write comprehensive test results as JSON."""
+    executed = len(result.records)
+    passed = max(0, executed - len(result.failures) - len(result.errors) - len(result.skipped))
+    summary_data = {
+        "total": executed,
+        "passed": passed,
+        "failed": len(result.failures),
+        "errors": len(result.errors),
+        "skipped": len(result.skipped),
+        "total_duration_seconds": round(total_time, 4),
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(result.start_wall_time))
+    }
+    if total_discovered is not None and total_discovered > executed:
+        summary_data["discovered"] = total_discovered
+        summary_data["aborted"] = total_discovered - executed
+
     report = {
-        "summary": {
-            "total": len(result.records),
-            "passed": len(result.records) - len(result.failures) - len(result.errors) - len(result.skipped),
-            "failed": len(result.failures),
-            "errors": len(result.errors),
-            "skipped": len(result.skipped),
-            "total_duration_seconds": round(total_time, 4),
-            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(result.start_wall_time))
-        },
+        "summary": summary_data,
         "tests": result.records
     }
     dir_name = os.path.dirname(os.path.abspath(output_path))
@@ -260,11 +272,21 @@ def main():
 
     print("\n----------------------------------------------------------------------")
     print(f"Execution Completed in {t_total:.3f} seconds.")
-    passed = total_tests - len(result.failures) - len(result.errors) - len(result.skipped)
-    print(f"Summary: \033[92m{passed} PASSED\033[0m | \033[91m{len(result.failures)} FAILED\033[0m | \033[93m{len(result.errors)} ERRORS\033[0m | \033[94m{len(result.skipped)} SKIPPED\033[0m")
+    executed = len(result.records)
+    passed = max(0, executed - len(result.failures) - len(result.errors) - len(result.skipped))
+    aborted = max(0, total_tests - executed)
+    summary_msg = (
+        f"Summary: \033[92m{passed} PASSED\033[0m | "
+        f"\033[91m{len(result.failures)} FAILED\033[0m | "
+        f"\033[93m{len(result.errors)} ERRORS\033[0m | "
+        f"\033[94m{len(result.skipped)} SKIPPED\033[0m"
+    )
+    if aborted > 0:
+        summary_msg += f" | \033[90m{aborted} ABORTED (fail-fast)\033[0m"
+    print(summary_msg)
 
-    # Print failures if not in verbose mode
-    if not args.verbose and (result.failures or result.errors):
+    # Print failure details (in both normal and verbose modes)
+    if result.failures or result.errors:
         print("\n========================= FAILURE DETAILS ============================")
         for test, err in result.failures:
             print(f"\nFAIL: {test.id()}")
@@ -273,14 +295,22 @@ def main():
             print(f"\nERROR: {test.id()}")
             print(err)
 
-    # Export reports
+    # Export reports with clean error handling (exit code 2 on unwritable path)
     if args.json_path:
-        export_json_report(result, t_total, args.json_path)
-        print(f"JSON Report written to: {args.json_path}")
+        try:
+            export_json_report(result, t_total, args.json_path, total_discovered=total_tests)
+            print(f"JSON Report written to: {args.json_path}")
+        except Exception as exc:
+            print(f"\033[91mERROR: Failed to write JSON report to '{args.json_path}': {exc}\033[0m")
+            return 2
 
     if args.xml_path:
-        export_junit_xml(result, t_total, args.xml_path)
-        print(f"JUnit XML written to:   {args.xml_path}")
+        try:
+            export_junit_xml(result, t_total, args.xml_path)
+            print(f"JUnit XML written to:   {args.xml_path}")
+        except Exception as exc:
+            print(f"\033[91mERROR: Failed to write JUnit XML report to '{args.xml_path}': {exc}\033[0m")
+            return 2
 
     print("======================================================================")
 
