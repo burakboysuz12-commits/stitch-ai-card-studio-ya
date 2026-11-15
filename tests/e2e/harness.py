@@ -16,6 +16,10 @@ import urllib.error
 import urllib.request
 from typing import Any, Dict, Generator, Optional, Tuple, Union
 
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
 # Headless display enforcement
 os.environ["MPLBACKEND"] = "Agg"
 os.environ["QT_QPA_PLATFORM"] = "offscreen"
@@ -50,9 +54,26 @@ class EphemeralServer:
         self.thread = None
         self.port = 0
         self.base_url = ""
+        self._temp_dir = None
+        self._orig_state_env = None
 
     def __enter__(self):
         from http.server import ThreadingHTTPServer
+
+        # Isolate state file to prevent test mutation of git-tracked active design state
+        self._temp_dir = tempfile.mkdtemp(prefix="ephemeral_server_state_")
+        self._temp_state = os.path.join(self._temp_dir, "_active_design_state.json")
+        default_state_path = os.path.join(PROJECT_ROOT, "ai_projects", "_active_design_state.json")
+        if os.path.isfile(default_state_path):
+            shutil.copy2(default_state_path, self._temp_state)
+        self._orig_state_env = os.environ.get("ACTIVE_DESIGN_STATE_PATH")
+        os.environ["ACTIVE_DESIGN_STATE_PATH"] = self._temp_state
+        try:
+            import web_server
+            web_server.ACTIVE_DESIGN_STATE_PATH = self._temp_state
+        except Exception:
+            pass
+
         # Port 0 instructs the OS kernel to allocate an unused ephemeral port
         self.server = ThreadingHTTPServer(("127.0.0.1", 0), self.handler_factory)
         self.port = self.server.server_address[1]
@@ -83,6 +104,25 @@ class EphemeralServer:
                 pass
         if self.thread and self.thread.is_alive():
             self.thread.join(timeout=2.0)
+
+        # Restore state path configuration and cleanup temporary directory
+        if self._orig_state_env is not None:
+            os.environ["ACTIVE_DESIGN_STATE_PATH"] = self._orig_state_env
+        else:
+            os.environ.pop("ACTIVE_DESIGN_STATE_PATH", None)
+        try:
+            import web_server
+            web_server.ACTIVE_DESIGN_STATE_PATH = os.environ.get(
+                "ACTIVE_DESIGN_STATE_PATH",
+                os.path.join(PROJECT_ROOT, "ai_projects", "_active_design_state.json")
+            )
+        except Exception:
+            pass
+        if self._temp_dir:
+            try:
+                shutil.rmtree(self._temp_dir, ignore_errors=True)
+            except Exception:
+                pass
 
 
 @contextlib.contextmanager

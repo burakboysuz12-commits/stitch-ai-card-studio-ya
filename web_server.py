@@ -7,6 +7,7 @@ import copy
 import json
 import os
 import re
+import tempfile
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any, Dict, List, Optional, Tuple
@@ -16,7 +17,15 @@ PORT = int(os.environ.get("PORT", "8080"))
 HOST = "0.0.0.0"
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 EDITOR_HTML_PATH = os.path.join(BASE_DIR, "ai_projects", "gorsel_parcali_editor.html")
-ACTIVE_DESIGN_STATE_PATH = os.path.join(BASE_DIR, "ai_projects", "_active_design_state.json")
+ACTIVE_DESIGN_STATE_PATH = os.environ.get(
+    "ACTIVE_DESIGN_STATE_PATH",
+    os.path.join(BASE_DIR, "ai_projects", "_active_design_state.json")
+)
+
+
+def get_active_design_state_path() -> str:
+    """Returns active design state path, allowing runtime environment overrides."""
+    return os.environ.get("ACTIVE_DESIGN_STATE_PATH", ACTIVE_DESIGN_STATE_PATH)
 
 # Turkish color keyword mapping
 TR_COLORS = {
@@ -76,6 +85,30 @@ def resolve_color(text: str) -> Optional[str]:
     return None
 
 
+def is_valid_design_state(state: Any) -> bool:
+    """Validates that state is a valid dictionary with canvas dimensions or elements."""
+    if not isinstance(state, dict) or not state:
+        return False
+
+    # If elements is present, it must be a list
+    if "elements" in state and not isinstance(state["elements"], list):
+        return False
+
+    # If layers is present, it must be a list
+    if "layers" in state and not isinstance(state["layers"], list):
+        return False
+
+    has_dimensions = (
+        ("width" in state and isinstance(state["width"], (int, float)) and state["width"] > 0)
+        or ("height" in state and isinstance(state["height"], (int, float)) and state["height"] > 0)
+        or ("canvas" in state and isinstance(state.get("canvas"), dict))
+    )
+    has_elements = "elements" in state and isinstance(state["elements"], list)
+    has_layers = "layers" in state and isinstance(state["layers"], list)
+
+    return has_dimensions or has_elements or has_layers
+
+
 def get_default_design_state() -> Dict[str, Any]:
     """Returns a default 1024x686 card design state."""
     return {
@@ -90,24 +123,53 @@ def get_default_design_state() -> Dict[str, Any]:
 
 def load_design_state() -> Dict[str, Any]:
     """Loads active design state from disk or returns default."""
-    if os.path.isfile(ACTIVE_DESIGN_STATE_PATH):
+    state_path = get_active_design_state_path()
+    if os.path.isfile(state_path):
         try:
-            with open(ACTIVE_DESIGN_STATE_PATH, "r", encoding="utf-8") as f:
-                return json.load(f)
+            with open(state_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, dict):
+                    if not isinstance(data.get("elements"), list):
+                        data["elements"] = []
+                    return data
         except Exception:
             pass
     return get_default_design_state()
 
 
 def save_design_state(state: Dict[str, Any]) -> bool:
-    """Saves active design state to disk."""
+    """Saves active design state to disk atomically."""
+    if not is_valid_design_state(state):
+        return False
     try:
-        os.makedirs(os.path.dirname(ACTIVE_DESIGN_STATE_PATH), exist_ok=True)
+        state_path = get_active_design_state_path()
+        dir_name = os.path.dirname(os.path.abspath(state_path))
+        if dir_name:
+            os.makedirs(dir_name, exist_ok=True)
+
         state_copy = copy.deepcopy(state)
+        # Ensure elements is always a list
+        if not isinstance(state_copy.get("elements"), list):
+            if isinstance(state_copy.get("layers"), list):
+                state_copy["elements"] = state_copy["layers"]
+            else:
+                state_copy["elements"] = []
+
         state_copy["updated_at"] = time.time()
-        with open(ACTIVE_DESIGN_STATE_PATH, "w", encoding="utf-8") as f:
-            json.dump(state_copy, f, ensure_ascii=False, indent=2)
-        return True
+
+        temp_fd, temp_path = tempfile.mkstemp(dir=dir_name or None, prefix="_state_", suffix=".tmp")
+        try:
+            with os.fdopen(temp_fd, "w", encoding="utf-8") as f:
+                json.dump(state_copy, f, ensure_ascii=False, indent=2)
+            os.replace(temp_path, state_path)
+            return True
+        except Exception:
+            if os.path.exists(temp_path):
+                try:
+                    os.remove(temp_path)
+                except Exception:
+                    pass
+            raise
     except Exception:
         return False
 
@@ -119,17 +181,23 @@ def process_natural_language_edit(
     Applies natural language edit commands to design state.
     Returns (updated_state, summary_message, success).
     """
+    if not isinstance(state, dict):
+        state = get_default_design_state()
+
     prompt_raw = (prompt or "").strip()
     if not prompt_raw:
         return state, "Boş komut iletildi.", False
 
     pl = prompt_raw.lower()
     updated = copy.deepcopy(state)
-    elements = updated.setdefault("elements", [])
+    elements = updated.get("elements")
+    if not isinstance(elements, list):
+        elements = []
+        updated["elements"] = elements
     notes: List[str] = []
 
     # Find selected element
-    sel_el = next((e for e in elements if str(e.get("id")) == str(selected_id)), None)
+    sel_el = next((e for e in elements if isinstance(e, dict) and str(e.get("id")) == str(selected_id)), None)
 
     # 1. Background color edit
     if any(k in pl for k in ("arka plan", "arkaplan", "zemin", "background")):
@@ -146,7 +214,7 @@ def process_natural_language_edit(
     target_layer_id = None
     for layer_id, aliases in SEMANTIC_LAYER_ALIASES.items():
         if any(re.search(r"\b" + re.escape(alias) + r"\b", pl) for alias in aliases):
-            found = next((e for e in elements if str(e.get("id")) == layer_id), None)
+            found = next((e for e in elements if isinstance(e, dict) and str(e.get("id")) == layer_id), None)
             if found:
                 target_el = found
                 target_layer_id = layer_id
@@ -155,7 +223,7 @@ def process_natural_language_edit(
     # 3. Delete command
     if any(w in pl for w in ("sil", "kaldır", "kaldir", "yok et")):
         if target_el:
-            elements[:] = [e for e in elements if e.get("id") != target_el.get("id")]
+            elements[:] = [e for e in elements if isinstance(e, dict) and e.get("id") != target_el.get("id")]
             notes.append(f"#{target_el.get('id')} katmanı silindi")
             target_el = None
 
@@ -351,13 +419,17 @@ class StitchWebHandler(BaseHTTPRequestHandler):
             self._send_json(400, {"ok": False, "error": f"Invalid JSON payload: {exc}"})
             return
 
+        if not isinstance(payload, dict):
+            self._send_json(400, {"ok": False, "error": "Payload must be a JSON object"})
+            return
+
         # 1. AI natural language editing endpoint
         if path == "/api/ai_edit":
             prompt = payload.get("prompt") or payload.get("command") or ""
             selected_id = payload.get("selectedId") or ""
             client_state = payload.get("state")
 
-            if not client_state:
+            if not isinstance(client_state, dict):
                 # If caller provided `layers` directly
                 layers = payload.get("layers")
                 if isinstance(layers, list):
@@ -366,9 +438,13 @@ class StitchWebHandler(BaseHTTPRequestHandler):
                 else:
                     client_state = load_design_state()
 
-            updated_state, summary, success = process_natural_language_edit(
-                prompt=prompt, selected_id=selected_id, state=client_state
-            )
+            try:
+                updated_state, summary, success = process_natural_language_edit(
+                    prompt=prompt, selected_id=selected_id, state=client_state
+                )
+            except Exception as exc:
+                self._send_json(500, {"ok": False, "error": f"Error processing edit: {exc}"})
+                return
 
             self._send_json(
                 200,
@@ -376,7 +452,7 @@ class StitchWebHandler(BaseHTTPRequestHandler):
                     "ok": True,
                     "success": success,
                     "state": updated_state,
-                    "layers": updated_state.get("elements", []),
+                    "layers": updated_state.get("elements", []) if isinstance(updated_state.get("elements"), list) else [],
                     "summary": summary,
                     "action_summary": summary,
                 },
@@ -385,23 +461,36 @@ class StitchWebHandler(BaseHTTPRequestHandler):
 
         # 2. Design state save endpoint (POST)
         if path in ("/api/design/state", "/api/state"):
+            if not payload:
+                self._send_json(400, {"ok": False, "error": "Empty payload provided"})
+                return
+
             new_state = payload.get("state")
-            if not new_state and ("elements" in payload or "layers" in payload):
-                new_state = payload.get("state") or load_design_state()
-                if "layers" in payload:
-                    new_state["elements"] = payload["layers"]
-                elif "elements" in payload:
-                    new_state["elements"] = payload["elements"]
-            elif not new_state:
+            if new_state is None and ("elements" in payload or "layers" in payload):
+                layers_val = payload.get("layers") if "layers" in payload else payload.get("elements")
+                if not isinstance(layers_val, list):
+                    self._send_json(400, {"ok": False, "error": "Malformed elements: must be a list"})
+                    return
+                new_state = load_design_state()
+                new_state["elements"] = layers_val
+            elif new_state is None:
                 new_state = payload
 
+            if not is_valid_design_state(new_state):
+                self._send_json(400, {"ok": False, "error": "Invalid or malformed design state schema"})
+                return
+
             saved = save_design_state(new_state)
+            if not saved:
+                self._send_json(400, {"ok": False, "error": "Failed to validate or save design state"})
+                return
+
             self._send_json(
                 200,
                 {
-                    "ok": saved,
-                    "success": saved,
-                    "message": "Design state saved successfully" if saved else "Failed to save state",
+                    "ok": True,
+                    "success": True,
+                    "message": "Design state saved successfully",
                     "layers": new_state.get("elements", []),
                 },
             )

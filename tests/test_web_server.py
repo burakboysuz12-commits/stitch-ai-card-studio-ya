@@ -6,8 +6,10 @@ Verifies cloud runtime readiness, dynamic port binding, health checks, editor se
 import importlib
 import json
 import os
+import shutil
 import socket
 import sys
+import tempfile
 import threading
 import time
 import unittest
@@ -31,14 +33,16 @@ class TestWebServer(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.port = get_free_port()
-        # Backup active design state file to preserve working tree cleanliness
-        cls.saved_state_backup = None
-        if os.path.isfile(web_server.ACTIVE_DESIGN_STATE_PATH):
-            try:
-                with open(web_server.ACTIVE_DESIGN_STATE_PATH, "rb") as f:
-                    cls.saved_state_backup = f.read()
-            except Exception:
-                pass
+        # Create isolated temporary directory for test design state
+        cls.temp_dir = tempfile.mkdtemp(prefix="test_web_server_")
+        cls.test_state_path = os.path.join(cls.temp_dir, "_active_design_state.json")
+        # Initialize with standard 1024x686 default design state
+        with open(cls.test_state_path, "w", encoding="utf-8") as f:
+            json.dump(web_server.get_default_design_state(), f)
+
+        cls.orig_env_state_path = os.environ.get("ACTIVE_DESIGN_STATE_PATH")
+        os.environ["ACTIVE_DESIGN_STATE_PATH"] = cls.test_state_path
+        web_server.ACTIVE_DESIGN_STATE_PATH = cls.test_state_path
 
         cls.server = web_server.ThreadingHTTPServer(("127.0.0.1", cls.port), web_server.StitchWebHandler)
         cls.thread = threading.Thread(target=cls.server.serve_forever, daemon=True)
@@ -54,13 +58,20 @@ class TestWebServer(unittest.TestCase):
             cls.server.server_close()
         except Exception:
             pass
-        # Restore design state file to original pristine content
-        if cls.saved_state_backup is not None:
-            try:
-                with open(web_server.ACTIVE_DESIGN_STATE_PATH, "wb") as f:
-                    f.write(cls.saved_state_backup)
-            except Exception:
-                pass
+        # Clean up temporary directory
+        try:
+            shutil.rmtree(cls.temp_dir, ignore_errors=True)
+        except Exception:
+            pass
+        # Restore original state path configuration
+        if cls.orig_env_state_path is not None:
+            os.environ["ACTIVE_DESIGN_STATE_PATH"] = cls.orig_env_state_path
+            web_server.ACTIVE_DESIGN_STATE_PATH = cls.orig_env_state_path
+        else:
+            os.environ.pop("ACTIVE_DESIGN_STATE_PATH", None)
+            web_server.ACTIVE_DESIGN_STATE_PATH = os.path.join(
+                web_server.BASE_DIR, "ai_projects", "_active_design_state.json"
+            )
 
     def test_health_endpoint(self):
         """Verifies GET /api/health returns HTTP 200 and expected schema."""
@@ -208,6 +219,128 @@ class TestWebServer(unittest.TestCase):
         os.environ["PORT"] = "8080"
         importlib.reload(web_server)
         self.assertEqual(web_server.PORT, 8080)
+
+    def test_non_dict_json_payloads_return_400(self):
+        """Verifies posting non-dict JSON (list, string, int, null, bool) returns HTTP 400 Bad Request."""
+        non_dict_samples = [
+            b"[1, 2, 3]",
+            b'"string value"',
+            b"12345",
+            b"null",
+            b"true",
+        ]
+        endpoints = ["/api/ai_edit", "/api/design/state"]
+
+        for endpoint in endpoints:
+            url = f"{self.base_url}{endpoint}"
+            for sample in non_dict_samples:
+                req = urllib.request.Request(
+                    url,
+                    data=sample,
+                    headers={"Content-Type": "application/json"},
+                )
+                with self.assertRaises(urllib.error.HTTPError, msg=f"Failed for {endpoint} with {sample}") as ctx:
+                    urllib.request.urlopen(req, timeout=5)
+                self.assertEqual(ctx.exception.code, 400)
+                err_data = json.loads(ctx.exception.read().decode("utf-8"))
+                self.assertFalse(err_data.get("ok"))
+                self.assertIn("JSON object", err_data.get("error", ""))
+
+    def test_post_malformed_state_rejected_with_400_and_state_preserved(self):
+        """Verifies empty and malformed payloads are rejected with HTTP 400 without state corruption."""
+        with open(self.test_state_path, "r", encoding="utf-8") as f:
+            state_before = json.load(f)
+
+        malformed_samples = [
+            b"{}",
+            b'{"elements": null}',
+            b'{"state": {}}',
+            b'{"state": {"elements": null}}',
+            b'{"empty_test": true}',
+            b'{"elements": "not_a_list"}',
+        ]
+
+        url = f"{self.base_url}/api/design/state"
+        for sample in malformed_samples:
+            req = urllib.request.Request(
+                url,
+                data=sample,
+                headers={"Content-Type": "application/json"},
+            )
+            with self.assertRaises(urllib.error.HTTPError, msg=f"Failed to reject malformed payload: {sample}") as ctx:
+                urllib.request.urlopen(req, timeout=5)
+            self.assertEqual(ctx.exception.code, 400)
+            err_data = json.loads(ctx.exception.read().decode("utf-8"))
+            self.assertFalse(err_data.get("ok"))
+
+        # Verify state file was NOT overwritten with corrupted or empty data
+        with open(self.test_state_path, "r", encoding="utf-8") as f:
+            state_after = json.load(f)
+        self.assertEqual(state_after.get("width"), state_before.get("width", 1024))
+        self.assertIsInstance(state_after.get("elements"), list)
+
+    def test_subsequent_ai_edit_operates_reliably_after_malformed_requests(self):
+        """Verifies server recovers immediately and subsequent /api/ai_edit succeeds without crashing."""
+        url = f"{self.base_url}/api/ai_edit"
+        payload = {
+            "prompt": "yeni metin ekle 'Hata Sonrasi Dogrulama'",
+            "state": {
+                "width": 1024,
+                "height": 686,
+                "elements": [
+                    {"id": "isim", "type": "text", "text": "Test Kisi"}
+                ],
+            },
+        }
+        body = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(url, data=body, headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            self.assertEqual(resp.status, 200)
+            data = json.loads(resp.read().decode("utf-8"))
+            self.assertTrue(data.get("ok"))
+            self.assertTrue(data.get("success"))
+            elements = data.get("state", {}).get("elements", [])
+            self.assertGreaterEqual(len(elements), 2)
+
+    def test_configurable_state_path_env_variable(self):
+        """Verifies ACTIVE_DESIGN_STATE_PATH env var redirects state persistence to custom path."""
+        custom_state_file = os.path.join(self.temp_dir, "custom_sub_state.json")
+        try:
+            os.environ["ACTIVE_DESIGN_STATE_PATH"] = custom_state_file
+            test_data = {
+                "title": "Env Path Test",
+                "width": 1024,
+                "height": 686,
+                "elements": [{"id": "env_el", "text": "Custom Env"}],
+            }
+            save_success = web_server.save_design_state(test_data)
+            self.assertTrue(save_success)
+            self.assertTrue(os.path.isfile(custom_state_file))
+
+            loaded = web_server.load_design_state()
+            self.assertEqual(loaded.get("title"), "Env Path Test")
+            self.assertEqual(len(loaded.get("elements", [])), 1)
+        finally:
+            os.environ["ACTIVE_DESIGN_STATE_PATH"] = self.test_state_path
+
+    def test_atomic_state_persistence_and_validation(self):
+        """Verifies save_design_state performs atomic replacement and schema validation."""
+        # Validation failures
+        self.assertFalse(web_server.save_design_state({}))
+        self.assertFalse(web_server.save_design_state({"elements": None}))
+        self.assertFalse(web_server.save_design_state({"invalid_key": True}))
+
+        # Valid save
+        valid_state = {
+            "title": "Atomic Card",
+            "width": 1024,
+            "height": 686,
+            "elements": [{"id": "el1", "text": "Valid"}],
+        }
+        self.assertTrue(web_server.save_design_state(valid_state))
+        # Ensure no leftover temp files in directory
+        temp_files = [f for f in os.listdir(self.temp_dir) if f.startswith("_state_") and f.endswith(".tmp")]
+        self.assertEqual(len(temp_files), 0)
 
 
 if __name__ == "__main__":
